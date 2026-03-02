@@ -46,3 +46,12 @@ The tables below list all existing collectors.
 | Collector     | Flag       |
 | ------------- | ---------- |
 | APIListener   | `-collector.apilistener` |
+
+# Development
+
+Running tests:
+
+```
+make test
+make coverage
+```
