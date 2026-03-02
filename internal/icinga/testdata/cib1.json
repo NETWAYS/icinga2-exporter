@@ -1,0 +1,12 @@
+{
+    "results": [
+        {
+            "name": "CIB",
+            "perfdata": [],
+            "status": {
+                "active_host_checks": 0.123,
+                "uptime": 123.456
+            }
+        }
+    ]
+}
