@@ -42,12 +42,15 @@ type Config struct {
 	CertFile          string
 	KeyFile           string
 	Insecure          bool
+	CacheTTL          time.Duration
 	IcingaAPIURI      url.URL
 }
 
 type Client struct {
 	Client http.Client
 	URL    url.URL
+	cache  *Cache
+	config Config
 }
 
 func NewClient(c Config) (*Client, error) {
@@ -78,41 +81,18 @@ func NewClient(c Config) (*Client, error) {
 		rt = newBasicAuthRoundTripper(c.BasicAuthUsername, c.BasicAuthPassword, rt)
 	}
 
+	cache := NewCache(c.CacheTTL)
+
 	cli := &Client{
 		URL: c.IcingaAPIURI,
 		Client: http.Client{
 			Transport: rt,
 		},
+		config: c,
+		cache:  cache,
 	}
 
 	return cli, nil
-}
-
-func (icinga *Client) fetchJSON(endpoint string) ([]byte, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	u := icinga.URL.JoinPath(endpoint)
-
-	req, errReq := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
-
-	if errReq != nil {
-		return []byte{}, fmt.Errorf("error creating request: %w", errReq)
-	}
-
-	resp, errDo := icinga.Client.Do(req)
-
-	if errDo != nil {
-		return []byte{}, fmt.Errorf("error performing request: %w", errDo)
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return []byte{}, fmt.Errorf("request failed: %s", resp.Status)
-	}
-
-	defer resp.Body.Close()
-
-	return io.ReadAll(resp.Body)
 }
 
 func (icinga *Client) GetApiListenerMetrics() (APIResult, error) {
@@ -167,4 +147,44 @@ func (icinga *Client) GetApplicationMetrics() (ApplicationResult, error) {
 	}
 
 	return result, nil
+}
+
+func (icinga *Client) fetchJSON(endpoint string) ([]byte, error) {
+	// Lookup data in the cache we go out and bother the Icinga API
+	if elem, ok := icinga.cache.Get(endpoint); ok {
+		return elem, nil
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	u := icinga.URL.JoinPath(endpoint)
+
+	req, errReq := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+
+	if errReq != nil {
+		return []byte{}, fmt.Errorf("error creating request: %w", errReq)
+	}
+
+	resp, errDo := icinga.Client.Do(req)
+
+	if errDo != nil {
+		return []byte{}, fmt.Errorf("error performing request: %w", errDo)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return []byte{}, fmt.Errorf("request failed: %s", resp.Status)
+	}
+
+	defer resp.Body.Close()
+
+	data, errRead := io.ReadAll(resp.Body)
+
+	if errRead != nil {
+		return []byte{}, fmt.Errorf("reading response failed: %w", errRead)
+	}
+
+	icinga.cache.Set(endpoint, data)
+
+	return data, nil
 }

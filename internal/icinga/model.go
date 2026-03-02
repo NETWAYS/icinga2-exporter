@@ -25,7 +25,7 @@ type ApplicationResult struct {
 		Name   string `json:"name"`
 		Status struct {
 			IcingaApplication IcingaApplication `json:"icingaapplication"`
-		} `json:"status,omitempty"`
+		} `json:"status"`
 	} `json:"results"`
 }
 

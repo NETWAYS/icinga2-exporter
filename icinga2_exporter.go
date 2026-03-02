@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"time"
 
 	"github.com/martialblog/icinga2-exporter/internal/collector"
 	"github.com/martialblog/icinga2-exporter/internal/icinga"
@@ -48,6 +49,7 @@ func main() {
 		cliUsername             string
 		cliPassword             string
 		cliBaseURL              string
+		cliCacheTTL             uint
 		cliVersion              bool
 		cliDebugLog             bool
 		cliInsecure             bool
@@ -56,6 +58,7 @@ func main() {
 
 	flag.StringVar(&cliListenAddress, "web.listen-address", ":9665", "Address on which to expose metrics and web interface.")
 	flag.StringVar(&cliMetricsPath, "web.metrics-path", "/metrics", "Path under which to expose metrics.")
+	flag.UintVar(&cliCacheTTL, "web.cache-ttl", 60, "Cache lifetime in seconds for the Icinga API responses")
 
 	flag.StringVar(&cliBaseURL, "icinga.api", "https://localhost:5665/v1", "Path to the Icinga2 API")
 	flag.StringVar(&cliUsername, "icinga.username", "", "Icinga2 API Username")
@@ -93,6 +96,8 @@ func main() {
 		Level: logLevel,
 	}))
 
+	cacheTTL := time.Duration(cliCacheTTL) * time.Second
+
 	config := icinga.Config{
 		BasicAuthUsername: cliUsername,
 		BasicAuthPassword: cliPassword,
@@ -100,6 +105,7 @@ func main() {
 		CertFile:          cliCertFile,
 		KeyFile:           cliKeyFile,
 		Insecure:          cliInsecure,
+		CacheTTL:          cacheTTL,
 		IcingaAPIURI:      *u,
 	}
 
@@ -118,6 +124,7 @@ func main() {
 	}
 
 	http.Handle(cliMetricsPath, promhttp.Handler())
+	//nolint:errcheck
 	http.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
 		w.Write([]byte(`
 			<html>
