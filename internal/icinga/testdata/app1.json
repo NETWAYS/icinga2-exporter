@@ -1,0 +1,16 @@
+{
+    "results": [
+        {
+            "name": "IcingaApplication",
+            "perfdata": [],
+            "status": {
+                "icingaapplication": {
+                    "app": {
+                        "enable_event_handlers": true,
+                        "version": "r2.15.2-1"
+                    }
+                }
+            }
+        }
+    ]
+}

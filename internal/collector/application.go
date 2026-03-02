@@ -46,7 +46,6 @@ func (collector *Icinga2ApplicationCollector) Collect(ch chan<- prometheus.Metri
 		return
 	}
 
-	// TODO: Use a custom unmarshal to avoid this
 	r := result.Results[0]
 
 	collector.info.Reset()

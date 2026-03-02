@@ -69,19 +69,39 @@ func (collector *Icinga2CIBCollector) Collect(ch chan<- prometheus.Metric) {
 		return
 	}
 
-	// TODO: Use a custom unmarshal to avoid this
 	r := result.Results[0]
 
-	// TODO: We should make sure the keys exist
-	ch <- prometheus.MustNewConstMetric(collector.uptime, prometheus.CounterValue, r.Status["uptime"])
-	ch <- prometheus.MustNewConstMetric(collector.num_hosts_up, prometheus.GaugeValue, r.Status["num_hosts_up"])
-	ch <- prometheus.MustNewConstMetric(collector.num_hosts_down, prometheus.GaugeValue, r.Status["num_hosts_down"])
-	ch <- prometheus.MustNewConstMetric(collector.num_services_ok, prometheus.GaugeValue, r.Status["num_services_ok"])
-	ch <- prometheus.MustNewConstMetric(collector.num_services_critical, prometheus.GaugeValue, r.Status["num_services_critical"])
-	ch <- prometheus.MustNewConstMetric(collector.avg_execution_time, prometheus.GaugeValue, r.Status["avg_execution_time"])
-	ch <- prometheus.MustNewConstMetric(collector.avg_latency, prometheus.GaugeValue, r.Status["avg_latency"])
-	ch <- prometheus.MustNewConstMetric(collector.max_execution_time, prometheus.GaugeValue, r.Status["max_execution_time"])
-	ch <- prometheus.MustNewConstMetric(collector.max_latency, prometheus.GaugeValue, r.Status["max_latency"])
-	ch <- prometheus.MustNewConstMetric(collector.min_execution_time, prometheus.GaugeValue, r.Status["min_execution_time"])
-	ch <- prometheus.MustNewConstMetric(collector.min_latency, prometheus.GaugeValue, r.Status["min_latency"])
+	if v, ok := r.Status["uptime"]; ok {
+		ch <- prometheus.MustNewConstMetric(collector.uptime, prometheus.CounterValue, v)
+	}
+	if v, ok := r.Status["num_hosts_up"]; ok {
+		ch <- prometheus.MustNewConstMetric(collector.num_hosts_up, prometheus.GaugeValue, v)
+	}
+	if v, ok := r.Status["num_hosts_down"]; ok {
+		ch <- prometheus.MustNewConstMetric(collector.num_hosts_down, prometheus.GaugeValue, v)
+	}
+	if v, ok := r.Status["num_services_ok"]; ok {
+		ch <- prometheus.MustNewConstMetric(collector.num_services_ok, prometheus.GaugeValue, v)
+	}
+	if v, ok := r.Status["num_services_critical"]; ok {
+		ch <- prometheus.MustNewConstMetric(collector.num_services_critical, prometheus.GaugeValue, v)
+	}
+	if v, ok := r.Status["avg_execution_time"]; ok {
+		ch <- prometheus.MustNewConstMetric(collector.avg_execution_time, prometheus.GaugeValue, v)
+	}
+	if v, ok := r.Status["avg_latency"]; ok {
+		ch <- prometheus.MustNewConstMetric(collector.avg_latency, prometheus.GaugeValue, v)
+	}
+	if v, ok := r.Status["max_execution_time"]; ok {
+		ch <- prometheus.MustNewConstMetric(collector.max_execution_time, prometheus.GaugeValue, v)
+	}
+	if v, ok := r.Status["max_latency"]; ok {
+		ch <- prometheus.MustNewConstMetric(collector.max_latency, prometheus.GaugeValue, v)
+	}
+	if v, ok := r.Status["min_execution_time"]; ok {
+		ch <- prometheus.MustNewConstMetric(collector.min_execution_time, prometheus.GaugeValue, v)
+	}
+	if v, ok := r.Status["min_latency"]; ok {
+		ch <- prometheus.MustNewConstMetric(collector.min_latency, prometheus.GaugeValue, v)
+	}
 }
