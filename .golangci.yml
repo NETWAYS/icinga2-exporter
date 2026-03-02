@@ -2,6 +2,11 @@ version: "2"
 run:
   tests: false
 linters:
+  settings:
+    revive:
+     rules:
+        - name: var-naming
+          disabled: true
   default: all
   disable:
     - wsl_v5
@@ -29,6 +34,7 @@ linters:
       - legacy
       - std-error-handling
     paths:
+      - internal/icinga/tls.go
       - third_party$
       - builtin$
       - examples$

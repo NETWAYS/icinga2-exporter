@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"net/url"
@@ -11,8 +12,27 @@ import (
 )
 
 const (
-	endpointCIB         = "/status/CIB"
-	endpointApiListener = "/status/ApiListener"
+	endpointApiListener             = "/status/ApiListener"
+	endpointApplication             = "/status/IcingaApplication"
+	endpointCIB                     = "/status/CIB"
+	endpointCheckerComponent        = "/status/CheckerComponent"
+	endpointCompatLogger            = "/status/CompatLogger"
+	endpointElasticsearchWriter     = "/status/ElasticsearchWriter"
+	endpointExternalCommandListener = "/status/ExternalCommandListener"
+	endpointFileLogger              = "/status/FileLogger"
+	endpointGelfWriter              = "/status/GelfWriter"
+	endpointGraphiteWriter          = "/status/GraphiteWriter"
+	endpointIcingaApplication       = "/status/IcingaApplication"
+	endpointIdoMysqlConnection      = "/status/IdoMysqlConnection"
+	endpointIdoPgsqlConnection      = "/status/IdoPgsqlConnection"
+	endpointInfluxdb2Writer         = "/status/Influxdb2Writer"
+	endpointInfluxdbWriter          = "/status/InfluxdbWriter"
+	endpointJournaldLogger          = "/status/JournaldLogger"
+	endpointLivestatusListener      = "/status/LivestatusListener"
+	endpointNotificationComponent   = "/status/NotificationComponent"
+	endpointOpenTsdbWriter          = "/status/OpenTsdbWriter"
+	endpointPerfdataWriter          = "/status/PerfdataWriter"
+	endpointSyslogLogger            = "/status/SyslogLogger"
 )
 
 type Config struct {
@@ -22,12 +42,15 @@ type Config struct {
 	CertFile          string
 	KeyFile           string
 	Insecure          bool
+	CacheTTL          time.Duration
 	IcingaAPIURI      url.URL
 }
 
 type Client struct {
 	Client http.Client
 	URL    url.URL
+	cache  *Cache
+	config Config
 }
 
 func NewClient(c Config) (*Client, error) {
@@ -58,43 +81,30 @@ func NewClient(c Config) (*Client, error) {
 		rt = newBasicAuthRoundTripper(c.BasicAuthUsername, c.BasicAuthPassword, rt)
 	}
 
+	cache := NewCache(c.CacheTTL)
+
 	cli := &Client{
 		URL: c.IcingaAPIURI,
 		Client: http.Client{
 			Transport: rt,
 		},
+		config: c,
+		cache:  cache,
 	}
 
 	return cli, nil
 }
 
 func (icinga *Client) GetApiListenerMetrics() (APIResult, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	u := icinga.URL.JoinPath(endpointApiListener)
-
-	req, errReq := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
-
 	var result APIResult
 
-	if errReq != nil {
-		return result, fmt.Errorf("error creating request: %w", errReq)
+	body, errBody := icinga.fetchJSON(endpointApiListener)
+
+	if errBody != nil {
+		return result, fmt.Errorf("error fetching response: %w", errBody)
 	}
 
-	resp, errDo := icinga.Client.Do(req)
-
-	if errDo != nil {
-		return result, fmt.Errorf("error performing request: %w", errDo)
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return result, fmt.Errorf("request failed: %s", resp.Status)
-	}
-
-	defer resp.Body.Close()
-
-	errDecode := json.NewDecoder(resp.Body).Decode(&result)
+	errDecode := json.Unmarshal(body, &result)
 
 	if errDecode != nil {
 		return result, fmt.Errorf("error parsing response: %w", errDecode)
@@ -104,36 +114,77 @@ func (icinga *Client) GetApiListenerMetrics() (APIResult, error) {
 }
 
 func (icinga *Client) GetCIBMetrics() (CIBResult, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	u := icinga.URL.JoinPath(endpointCIB)
-
-	req, errReq := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
-
 	var result CIBResult
 
-	if errReq != nil {
-		return result, fmt.Errorf("error creating request: %w", errReq)
+	body, errBody := icinga.fetchJSON(endpointCIB)
+
+	if errBody != nil {
+		return result, fmt.Errorf("error fetching response: %w", errBody)
 	}
 
-	resp, errDo := icinga.Client.Do(req)
-
-	if errDo != nil {
-		return result, fmt.Errorf("error performing request: %w", errDo)
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return result, fmt.Errorf("request failed: %s", resp.Status)
-	}
-
-	defer resp.Body.Close()
-
-	errDecode := json.NewDecoder(resp.Body).Decode(&result)
+	errDecode := json.Unmarshal(body, &result)
 
 	if errDecode != nil {
 		return result, fmt.Errorf("error parsing response: %w", errDecode)
 	}
 
 	return result, nil
+}
+
+func (icinga *Client) GetApplicationMetrics() (ApplicationResult, error) {
+	var result ApplicationResult
+
+	body, errBody := icinga.fetchJSON(endpointApplication)
+
+	if errBody != nil {
+		return result, fmt.Errorf("error fetching response: %w", errBody)
+	}
+
+	errDecode := json.Unmarshal(body, &result)
+
+	if errDecode != nil {
+		return result, fmt.Errorf("error parsing response: %w", errDecode)
+	}
+
+	return result, nil
+}
+
+func (icinga *Client) fetchJSON(endpoint string) ([]byte, error) {
+	// Lookup data in the cache we go out and bother the Icinga API
+	if elem, ok := icinga.cache.Get(endpoint); ok {
+		return elem, nil
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	u := icinga.URL.JoinPath(endpoint)
+
+	req, errReq := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+
+	if errReq != nil {
+		return []byte{}, fmt.Errorf("error creating request: %w", errReq)
+	}
+
+	resp, errDo := icinga.Client.Do(req)
+
+	if errDo != nil {
+		return []byte{}, fmt.Errorf("error performing request: %w", errDo)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return []byte{}, fmt.Errorf("request failed: %s", resp.Status)
+	}
+
+	defer resp.Body.Close()
+
+	data, errRead := io.ReadAll(resp.Body)
+
+	if errRead != nil {
+		return []byte{}, fmt.Errorf("reading response failed: %w", errRead)
+	}
+
+	icinga.cache.Set(endpoint, data)
+
+	return data, nil
 }
