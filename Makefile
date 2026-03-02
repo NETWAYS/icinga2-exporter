@@ -2,7 +2,7 @@
 
 COMMIT := $(shell git rev-parse HEAD)
 VERSION?=latest
-DATE := $(shell date --iso-8601)
+DATE := $(shell date -I)
 
 GOARCH?=amd64
 GOOS?=linux
@@ -20,5 +20,7 @@ test:
 coverage:
 	go test -v -cover -coverprofile=coverage.out ./... &&\
 	go tool cover -html=coverage.out -o coverage.html
+container:
+	podman build -t icinga-exporter:latest .
 clean:
 	rm -f dist/*
