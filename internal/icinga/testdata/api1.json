@@ -1,0 +1,51 @@
+{
+    "results": [
+        {
+            "name": "ApiListener",
+            "perfdata": [
+                {
+                    "counter": false,
+                    "crit": null,
+                    "label": "api_num_conn_endpoints",
+                    "max": null,
+                    "min": null,
+                    "type": "PerfdataValue",
+                    "unit": "",
+                    "value": 11,
+                    "warn": null
+                }
+            ],
+            "status": {
+                "api": {
+                    "conn_endpoints": [],
+                    "http": {
+                        "clients": 1
+                    },
+                    "identity": "unittest",
+                    "json_rpc": {
+                        "anonymous_clients": 0,
+                        "relay_queue_item_rate": 0.999,
+                        "relay_queue_items": 0,
+                        "sync_queue_item_rate": 0,
+                        "sync_queue_items": 0,
+                        "work_queue_item_rate": 0
+                    },
+                    "not_conn_endpoints": [],
+                    "num_conn_endpoints": 0,
+                    "num_endpoints": 0,
+                    "num_not_conn_endpoints": 0,
+                    "zones": {
+                        "unittest": {
+                            "client_log_lag": 0,
+                            "connected": true,
+                            "endpoints": [
+                                "unittest"
+                            ],
+                            "parent_zone": ""
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}

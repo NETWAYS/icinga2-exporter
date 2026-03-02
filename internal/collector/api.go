@@ -48,7 +48,6 @@ func (collector *Icinga2APICollector) Collect(ch chan<- prometheus.Metric) {
 		return
 	}
 
-	// TODO: Use a custom unmarshal to avoid this
 	r := result.Results[0]
 	// There might be a better way
 	var perfdata = make(map[string]float64, len(r.Perfdata))
