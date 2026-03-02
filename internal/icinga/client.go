@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"net/url"
@@ -87,33 +88,43 @@ func NewClient(c Config) (*Client, error) {
 	return cli, nil
 }
 
-func (icinga *Client) GetApiListenerMetrics() (APIResult, error) {
+func (icinga *Client) fetchJSON(endpoint string) ([]byte, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	u := icinga.URL.JoinPath(endpointApiListener)
+	u := icinga.URL.JoinPath(endpoint)
 
 	req, errReq := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
 
-	var result APIResult
-
 	if errReq != nil {
-		return result, fmt.Errorf("error creating request: %w", errReq)
+		return []byte{}, fmt.Errorf("error creating request: %w", errReq)
 	}
 
 	resp, errDo := icinga.Client.Do(req)
 
 	if errDo != nil {
-		return result, fmt.Errorf("error performing request: %w", errDo)
+		return []byte{}, fmt.Errorf("error performing request: %w", errDo)
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return result, fmt.Errorf("request failed: %s", resp.Status)
+		return []byte{}, fmt.Errorf("request failed: %s", resp.Status)
 	}
 
 	defer resp.Body.Close()
 
-	errDecode := json.NewDecoder(resp.Body).Decode(&result)
+	return io.ReadAll(resp.Body)
+}
+
+func (icinga *Client) GetApiListenerMetrics() (APIResult, error) {
+	var result APIResult
+
+	body, errBody := icinga.fetchJSON(endpointApiListener)
+
+	if errBody != nil {
+		return result, fmt.Errorf("error fetching response: %w", errBody)
+	}
+
+	errDecode := json.Unmarshal(body, &result)
 
 	if errDecode != nil {
 		return result, fmt.Errorf("error parsing response: %w", errDecode)
@@ -123,32 +134,15 @@ func (icinga *Client) GetApiListenerMetrics() (APIResult, error) {
 }
 
 func (icinga *Client) GetCIBMetrics() (CIBResult, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	u := icinga.URL.JoinPath(endpointCIB)
-
-	req, errReq := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
-
 	var result CIBResult
 
-	if errReq != nil {
-		return result, fmt.Errorf("error creating request: %w", errReq)
+	body, errBody := icinga.fetchJSON(endpointCIB)
+
+	if errBody != nil {
+		return result, fmt.Errorf("error fetching response: %w", errBody)
 	}
 
-	resp, errDo := icinga.Client.Do(req)
-
-	if errDo != nil {
-		return result, fmt.Errorf("error performing request: %w", errDo)
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return result, fmt.Errorf("request failed: %s", resp.Status)
-	}
-
-	defer resp.Body.Close()
-
-	errDecode := json.NewDecoder(resp.Body).Decode(&result)
+	errDecode := json.Unmarshal(body, &result)
 
 	if errDecode != nil {
 		return result, fmt.Errorf("error parsing response: %w", errDecode)
@@ -158,32 +152,15 @@ func (icinga *Client) GetCIBMetrics() (CIBResult, error) {
 }
 
 func (icinga *Client) GetApplicationMetrics() (ApplicationResult, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	u := icinga.URL.JoinPath(endpointApplication)
-
-	req, errReq := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
-
 	var result ApplicationResult
 
-	if errReq != nil {
-		return result, fmt.Errorf("error creating request: %w", errReq)
+	body, errBody := icinga.fetchJSON(endpointApplication)
+
+	if errBody != nil {
+		return result, fmt.Errorf("error fetching response: %w", errBody)
 	}
 
-	resp, errDo := icinga.Client.Do(req)
-
-	if errDo != nil {
-		return result, fmt.Errorf("error performing request: %w", errDo)
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return result, fmt.Errorf("request failed: %s", resp.Status)
-	}
-
-	defer resp.Body.Close()
-
-	errDecode := json.NewDecoder(resp.Body).Decode(&result)
+	errDecode := json.Unmarshal(body, &result)
 
 	if errDecode != nil {
 		return result, fmt.Errorf("error parsing response: %w", errDecode)
