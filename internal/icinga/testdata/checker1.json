@@ -1,0 +1,39 @@
+{
+    "results": [
+        {
+            "name": "CheckerComponent",
+            "perfdata": [
+                {
+                    "counter": false,
+                    "crit": null,
+                    "label": "checkercomponent_checker_idle",
+                    "max": null,
+                    "min": null,
+                    "type": "PerfdataValue",
+                    "unit": "",
+                    "value": 15,
+                    "warn": null
+                },
+                {
+                    "counter": false,
+                    "crit": null,
+                    "label": "checkercomponent_checker_pending",
+                    "max": null,
+                    "min": null,
+                    "type": "PerfdataValue",
+                    "unit": "",
+                    "value": 10,
+                    "warn": null
+                }
+            ],
+            "status": {
+                "checkercomponent": {
+                    "checker": {
+                        "idle": 14,
+                        "pending": 0
+                    }
+                }
+            }
+        }
+    ]
+}

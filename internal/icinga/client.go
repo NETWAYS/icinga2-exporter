@@ -149,6 +149,24 @@ func (icinga *Client) GetApplicationMetrics() (ApplicationResult, error) {
 	return result, nil
 }
 
+func (icinga *Client) GetCheckerComponentMetrics() (CheckerComponentResult, error) {
+	var result CheckerComponentResult
+
+	body, errBody := icinga.fetchJSON(endpointCheckerComponent)
+
+	if errBody != nil {
+		return result, fmt.Errorf("error fetching response: %w", errBody)
+	}
+
+	errDecode := json.Unmarshal(body, &result)
+
+	if errDecode != nil {
+		return result, fmt.Errorf("error parsing response: %w", errDecode)
+	}
+
+	return result, nil
+}
+
 func (icinga *Client) fetchJSON(endpoint string) ([]byte, error) {
 	// Lookup data in the cache we go out and bother the Icinga API
 	if elem, ok := icinga.cache.Get(endpoint); ok {

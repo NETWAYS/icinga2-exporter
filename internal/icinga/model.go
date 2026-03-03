@@ -42,3 +42,10 @@ type App struct {
 	EnableServiceChecks bool   `json:"enable_service_checks"`
 	Version             string `json:"version"`
 }
+
+type CheckerComponentResult struct {
+	Results []struct {
+		Name     string     `json:"name"`
+		Perfdata []Perfdata `json:"perfdata,omitempty"`
+	} `json:"results"`
+}

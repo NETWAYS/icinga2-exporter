@@ -10,6 +10,10 @@ See the `-help` output for more options.
 ```
 -collector.apilistener
       Include APIListener data
+-collector.cib
+      Include CIB data
+-collector.checker
+      Include CheckerComponent data
 -debug
       Enable debug logging
 -icinga.api string
@@ -38,7 +42,7 @@ See the `-help` output for more options.
 
 ## Collectors
 
-By default only the `CIB` metrics of the status API are collected.
+By default only the `IcingaApplication` metrics of the status API are collected.
 
 There are more collectors that can be activated via the CLI.
 The tables below list all existing collectors.
@@ -46,6 +50,8 @@ The tables below list all existing collectors.
 | Collector     | Flag       |
 | ------------- | ---------- |
 | APIListener   | `-collector.apilistener` |
+| CIB           | `-collector.cib`         |
+| CheckerComponent | `-collector.checker`  |
 
 # Development
 
