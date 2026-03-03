@@ -59,6 +59,7 @@ func main() {
 		cliCollectorApiListener bool
 		cliCollectorCIB         bool
 		cliCollectorChecker     bool
+		cliCollectorObjects     bool
 	)
 
 	flag.StringVar(&cliListenAddress, "web.listen-address", ":9665", "Address on which to expose metrics and web interface.")
@@ -76,6 +77,7 @@ func main() {
 	flag.BoolVar(&cliCollectorApiListener, "collector.apilistener", false, "Include APIListener data")
 	flag.BoolVar(&cliCollectorCIB, "collector.cib", false, "Include CIB data")
 	flag.BoolVar(&cliCollectorChecker, "collector.checker", false, "Include CheckerComponent data")
+	flag.BoolVar(&cliCollectorObjects, "collector.objects", false, "Include Object data")
 
 	flag.BoolVar(&cliVersion, "version", false, "Print version")
 	flag.BoolVar(&cliDebugLog, "debug", false, "Enable debug logging")
@@ -138,6 +140,10 @@ func main() {
 
 	if cliCollectorChecker {
 		prometheus.MustRegister(collector.NewIcinga2CheckerCollector(c, logger))
+	}
+
+	if cliCollectorObjects {
+		prometheus.MustRegister(collector.NewIcinga2ObjectsCollector(c, logger))
 	}
 
 	// Create a central context to propagate a shutdown

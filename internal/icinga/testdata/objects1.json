@@ -1,0 +1,14 @@
+curl -X GET -s -k -u 'root:0e7ff601de4a5426' 'https://localhost:5665/v1/objects/users?pretty=1' -d '{ "attrs": [ "__name"]}'
+{
+    "results": [
+        {
+            "attrs": {
+                "__name": "icingaadmin"
+            },
+            "joins": {},
+            "meta": {},
+            "name": "icingaadmin",
+            "type": "User"
+        }
+    ]
+}
