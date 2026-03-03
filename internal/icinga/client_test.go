@@ -11,9 +11,10 @@ import (
 )
 
 const (
-	icingaTestDataCIB1 = "testdata/cib1.json"
-	icingaTestDataAPP1 = "testdata/app1.json"
-	icingaTestDataAPI1 = "testdata/api1.json"
+	icingaTestDataCIB1   = "testdata/cib1.json"
+	icingaTestDataAPP1   = "testdata/app1.json"
+	icingaTestDataAPI1   = "testdata/api1.json"
+	icingaTestDataCheck1 = "testdata/checker1.json"
 )
 
 func loadTestdata(filepath string) []byte {
@@ -174,6 +175,54 @@ func Test_GetApiListenerMetrics(t *testing.T) {
 			cli, _ := NewClient(cfg)
 
 			actual, err := cli.GetApiListenerMetrics()
+
+			if err != nil {
+				t.Fatalf("did not expect error got:\n %+v", err)
+			}
+
+			if !reflect.DeepEqual(test.expected, actual) {
+				t.Fatalf("expected:\n %+v \ngot:\n %+v", test.expected, actual)
+			}
+		})
+	}
+}
+
+func Test_GetCheckerMetrics(t *testing.T) {
+	testcases := map[string]struct {
+		expected CheckerComponentResult
+		server   *httptest.Server
+	}{
+		"application": {
+			server: httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(http.StatusOK)
+				w.Write(loadTestdata(icingaTestDataCheck1))
+			})),
+			expected: CheckerComponentResult{
+				Results: []struct {
+					Name     string     `json:"name"`
+					Perfdata []Perfdata `json:"perfdata,omitempty"`
+				}{
+					{
+						Name: "CheckerComponent",
+						Perfdata: []Perfdata{
+							{Label: "checkercomponent_checker_idle", Value: 15},
+							{Label: "checkercomponent_checker_pending", Value: 10},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for name, test := range testcases {
+		t.Run(name, func(t *testing.T) {
+			defer test.server.Close()
+
+			cfg := testConfig(test.server)
+
+			cli, _ := NewClient(cfg)
+
+			actual, err := cli.GetCheckerComponentMetrics()
 
 			if err != nil {
 				t.Fatalf("did not expect error got:\n %+v", err)

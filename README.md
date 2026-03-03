@@ -12,6 +12,8 @@ See the `-help` output for more options.
       Include APIListener data
 -collector.cib
       Include CIB data
+-collector.checker
+      Include CheckerComponent data
 -debug
       Enable debug logging
 -icinga.api string
@@ -49,6 +51,7 @@ The tables below list all existing collectors.
 | ------------- | ---------- |
 | APIListener   | `-collector.apilistener` |
 | CIB           | `-collector.cib`         |
+| CheckerComponent | `-collector.checker`  |
 
 # Development
 
