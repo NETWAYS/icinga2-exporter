@@ -12,6 +12,7 @@ import (
 )
 
 const (
+	endpointObjects                 = "/objects"
 	endpointApiListener             = "/status/ApiListener"
 	endpointApplication             = "/status/IcingaApplication"
 	endpointCIB                     = "/status/CIB"
@@ -153,6 +154,24 @@ func (icinga *Client) GetCheckerComponentMetrics() (CheckerComponentResult, erro
 	var result CheckerComponentResult
 
 	body, errBody := icinga.fetchJSON(endpointCheckerComponent)
+
+	if errBody != nil {
+		return result, fmt.Errorf("error fetching response: %w", errBody)
+	}
+
+	errDecode := json.Unmarshal(body, &result)
+
+	if errDecode != nil {
+		return result, fmt.Errorf("error parsing response: %w", errDecode)
+	}
+
+	return result, nil
+}
+
+func (icinga *Client) GetObjects(object string) (ObjectsResult, error) {
+	var result ObjectsResult
+
+	body, errBody := icinga.fetchJSON(endpointObjects + "/" + object)
 
 	if errBody != nil {
 		return result, fmt.Errorf("error fetching response: %w", errBody)

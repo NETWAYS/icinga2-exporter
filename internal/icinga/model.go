@@ -49,3 +49,10 @@ type CheckerComponentResult struct {
 		Perfdata []Perfdata `json:"perfdata,omitempty"`
 	} `json:"results"`
 }
+
+type ObjectsResult struct {
+	Results []struct {
+		Name string `json:"name"`
+		Type string `json:"type"`
+	} `json:"results"`
+}
