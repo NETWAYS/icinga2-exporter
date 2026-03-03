@@ -57,6 +57,7 @@ func main() {
 		cliDebugLog             bool
 		cliInsecure             bool
 		cliCollectorApiListener bool
+		cliCollectorCIB         bool
 	)
 
 	flag.StringVar(&cliListenAddress, "web.listen-address", ":9665", "Address on which to expose metrics and web interface.")
@@ -72,6 +73,7 @@ func main() {
 	flag.BoolVar(&cliInsecure, "icinga.insecure", false, "Skip TLS verification for Icinga2 API")
 
 	flag.BoolVar(&cliCollectorApiListener, "collector.apilistener", false, "Include APIListener data")
+	flag.BoolVar(&cliCollectorCIB, "collector.cib", false, "Include CIB data")
 
 	flag.BoolVar(&cliVersion, "version", false, "Print version")
 	flag.BoolVar(&cliDebugLog, "debug", false, "Enable debug logging")
@@ -122,8 +124,11 @@ func main() {
 	}
 
 	// Register Collectors
-	prometheus.MustRegister(collector.NewIcinga2CIBCollector(c, logger))
 	prometheus.MustRegister(collector.NewIcinga2ApplicationCollector(c, logger))
+
+	if cliCollectorCIB {
+		prometheus.MustRegister(collector.NewIcinga2CIBCollector(c, logger))
+	}
 
 	if cliCollectorApiListener {
 		prometheus.MustRegister(collector.NewIcinga2APICollector(c, logger))
