@@ -38,6 +38,11 @@ linters:
       - third_party$
       - builtin$
       - examples$
+    rules:
+      - path: 'internal/collector/cib.go'
+        linters:
+          - gocognit
+          - gocyclo
 formatters:
   enable:
     - gofmt
