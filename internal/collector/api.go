@@ -36,27 +36,28 @@ func (collector *Icinga2APICollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *Icinga2APICollector) Collect(ch chan<- prometheus.Metric) {
-	result, err := collector.icingaClient.GetApiListenerMetrics()
+	perfdata, err := collector.icingaClient.GetPerfdataMetrics(icinga.EndpointApiListener)
 
 	if err != nil {
 		collector.logger.Error("Could not retrieve ApiListener metrics", "error", err.Error())
 		return
 	}
 
-	if len(result.Results) < 1 {
-		collector.logger.Debug("No results for ApiListener metrics")
-		return
-	}
+	for _, datapoint := range perfdata {
+		if datapoint.Label == "api_num_conn_endpoints" {
+			ch <- prometheus.MustNewConstMetric(collector.api_num_conn_endpoints, prometheus.GaugeValue, datapoint.Value)
+		}
 
-	r := result.Results[0]
-	// There might be a better way
-	var perfdata = make(map[string]float64, len(r.Perfdata))
-	for _, v := range r.Perfdata {
-		perfdata[v.Label] = v.Value
-	}
+		if datapoint.Label == "api_num_not_conn_endpoints" {
+			ch <- prometheus.MustNewConstMetric(collector.api_num_conn_endpoints, prometheus.GaugeValue, datapoint.Value)
+		}
 
-	ch <- prometheus.MustNewConstMetric(collector.api_num_conn_endpoints, prometheus.GaugeValue, perfdata["api_num_conn_endpoints"])
-	ch <- prometheus.MustNewConstMetric(collector.api_num_not_conn_endpoints, prometheus.GaugeValue, perfdata["api_num_not_conn_endpoints"])
-	ch <- prometheus.MustNewConstMetric(collector.api_num_endpoints, prometheus.GaugeValue, perfdata["api_num_endpoints"])
-	ch <- prometheus.MustNewConstMetric(collector.api_num_http_clients, prometheus.GaugeValue, perfdata["api_num_http_clients"])
+		if datapoint.Label == "api_num_endpoints" {
+			ch <- prometheus.MustNewConstMetric(collector.api_num_conn_endpoints, prometheus.GaugeValue, datapoint.Value)
+		}
+
+		if datapoint.Label == "api_num_http_clients" {
+			ch <- prometheus.MustNewConstMetric(collector.api_num_conn_endpoints, prometheus.GaugeValue, datapoint.Value)
+		}
+	}
 }

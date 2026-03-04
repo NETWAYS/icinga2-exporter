@@ -59,6 +59,9 @@ func main() {
 		cliCollectorApiListener bool
 		cliCollectorCIB         bool
 		cliCollectorChecker     bool
+		cliCollectorInflux      bool
+		cliCollectorInflux2     bool
+		cliCollectorGraphite    bool
 	)
 
 	flag.StringVar(&cliListenAddress, "web.listen-address", ":9665", "Address on which to expose metrics and web interface.")
@@ -76,6 +79,9 @@ func main() {
 	flag.BoolVar(&cliCollectorApiListener, "collector.apilistener", false, "Include APIListener data")
 	flag.BoolVar(&cliCollectorCIB, "collector.cib", false, "Include CIB data")
 	flag.BoolVar(&cliCollectorChecker, "collector.checker", false, "Include CheckerComponent data")
+	flag.BoolVar(&cliCollectorInflux, "collector.influx", false, "Include InfluxDBWriter  data")
+	flag.BoolVar(&cliCollectorInflux2, "collector.influx2", false, "Include InfluxDB2Writer data")
+	flag.BoolVar(&cliCollectorGraphite, "collector.graphite", false, "Include GraphiteWriter data")
 
 	flag.BoolVar(&cliVersion, "version", false, "Print version")
 	flag.BoolVar(&cliDebugLog, "debug", false, "Enable debug logging")
@@ -138,6 +144,18 @@ func main() {
 
 	if cliCollectorChecker {
 		prometheus.MustRegister(collector.NewIcinga2CheckerCollector(c, logger))
+	}
+
+	if cliCollectorInflux {
+		prometheus.MustRegister(collector.NewIcinga2InfluxDBCollector(c, logger))
+	}
+
+	if cliCollectorInflux2 {
+		prometheus.MustRegister(collector.NewIcinga2InfluxDB2Collector(c, logger))
+	}
+
+	if cliCollectorGraphite {
+		prometheus.MustRegister(collector.NewIcinga2GraphiteCollector(c, logger))
 	}
 
 	// Create a central context to propagate a shutdown
