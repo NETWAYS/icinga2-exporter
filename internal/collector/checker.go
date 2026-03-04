@@ -30,30 +30,20 @@ func (collector *Icinga2CheckerCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *Icinga2CheckerCollector) Collect(ch chan<- prometheus.Metric) {
-	result, err := collector.icingaClient.GetCheckerComponentMetrics()
+	perfdata, err := collector.icingaClient.GetPerfdataMetrics(icinga.EndpointCheckerComponent)
 
 	if err != nil {
 		collector.logger.Error("Could not retrieve CheckerComponent metrics", "error", err.Error())
 		return
 	}
 
-	if len(result.Results) < 1 {
-		collector.logger.Debug("No results for CheckerComponent metrics")
-		return
-	}
+	for _, datapoint := range perfdata {
+		if datapoint.Label == "checkercomponent_checker_idle" {
+			ch <- prometheus.MustNewConstMetric(collector.checkercomponent_checker_idle, prometheus.GaugeValue, datapoint.Value)
+		}
 
-	r := result.Results[0]
-	// There might be a better way
-	var perfdata = make(map[string]float64, len(r.Perfdata))
-	for _, v := range r.Perfdata {
-		perfdata[v.Label] = v.Value
-	}
-
-	if v, ok := perfdata["checkercomponent_checker_idle"]; ok {
-		ch <- prometheus.MustNewConstMetric(collector.checkercomponent_checker_idle, prometheus.GaugeValue, v)
-	}
-
-	if v, ok := perfdata["checkercomponent_checker_pending"]; ok {
-		ch <- prometheus.MustNewConstMetric(collector.checkercomponent_checker_pending, prometheus.GaugeValue, v)
+		if datapoint.Label == "checkercomponent_checker_pending" {
+			ch <- prometheus.MustNewConstMetric(collector.checkercomponent_checker_pending, prometheus.GaugeValue, datapoint.Value)
+		}
 	}
 }

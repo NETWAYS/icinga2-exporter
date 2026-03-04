@@ -12,27 +12,27 @@ import (
 )
 
 const (
-	endpointApiListener             = "/status/ApiListener"
-	endpointApplication             = "/status/IcingaApplication"
-	endpointCIB                     = "/status/CIB"
-	endpointCheckerComponent        = "/status/CheckerComponent"
-	endpointCompatLogger            = "/status/CompatLogger"
-	endpointElasticsearchWriter     = "/status/ElasticsearchWriter"
-	endpointExternalCommandListener = "/status/ExternalCommandListener"
-	endpointFileLogger              = "/status/FileLogger"
-	endpointGelfWriter              = "/status/GelfWriter"
-	endpointGraphiteWriter          = "/status/GraphiteWriter"
-	endpointIcingaApplication       = "/status/IcingaApplication"
-	endpointIdoMysqlConnection      = "/status/IdoMysqlConnection"
-	endpointIdoPgsqlConnection      = "/status/IdoPgsqlConnection"
-	endpointInfluxdb2Writer         = "/status/Influxdb2Writer"
-	endpointInfluxdbWriter          = "/status/InfluxdbWriter"
-	endpointJournaldLogger          = "/status/JournaldLogger"
-	endpointLivestatusListener      = "/status/LivestatusListener"
-	endpointNotificationComponent   = "/status/NotificationComponent"
-	endpointOpenTsdbWriter          = "/status/OpenTsdbWriter"
-	endpointPerfdataWriter          = "/status/PerfdataWriter"
-	endpointSyslogLogger            = "/status/SyslogLogger"
+	EndpointApiListener             = "/status/ApiListener"
+	EndpointApplication             = "/status/IcingaApplication"
+	EndpointCIB                     = "/status/CIB"
+	EndpointCheckerComponent        = "/status/CheckerComponent"
+	EndpointCompatLogger            = "/status/CompatLogger"
+	EndpointElasticsearchWriter     = "/status/ElasticsearchWriter"
+	EndpointExternalCommandListener = "/status/ExternalCommandListener"
+	EndpointFileLogger              = "/status/FileLogger"
+	EndpointGelfWriter              = "/status/GelfWriter"
+	EndpointGraphiteWriter          = "/status/GraphiteWriter"
+	EndpointIcingaApplication       = "/status/IcingaApplication"
+	EndpointIdoMysqlConnection      = "/status/IdoMysqlConnection"
+	EndpointIdoPgsqlConnection      = "/status/IdoPgsqlConnection"
+	EndpointInfluxdb2Writer         = "/status/Influxdb2Writer"
+	EndpointInfluxdbWriter          = "/status/InfluxdbWriter"
+	EndpointJournaldLogger          = "/status/JournaldLogger"
+	EndpointLivestatusListener      = "/status/LivestatusListener"
+	EndpointNotificationComponent   = "/status/NotificationComponent"
+	EndpointOpenTsdbWriter          = "/status/OpenTsdbWriter"
+	EndpointPerfdataWriter          = "/status/PerfdataWriter"
+	EndpointSyslogLogger            = "/status/SyslogLogger"
 )
 
 type Config struct {
@@ -95,28 +95,35 @@ func NewClient(c Config) (*Client, error) {
 	return cli, nil
 }
 
-func (icinga *Client) GetApiListenerMetrics() (APIResult, error) {
-	var result APIResult
+// GetPerfdataMetrics returns the perfdata from a given status API endpoint
+func (icinga *Client) GetPerfdataMetrics(endpoint string) ([]Perfdata, error) {
+	var result PerfdataResult
 
-	body, errBody := icinga.fetchJSON(endpointApiListener)
+	body, errBody := icinga.fetchJSON(endpoint)
 
 	if errBody != nil {
-		return result, fmt.Errorf("error fetching response: %w", errBody)
+		return nil, fmt.Errorf("error fetching response: %w", errBody)
 	}
 
 	errDecode := json.Unmarshal(body, &result)
 
 	if errDecode != nil {
-		return result, fmt.Errorf("error parsing response: %w", errDecode)
+		return nil, fmt.Errorf("error parsing response: %w", errDecode)
 	}
 
-	return result, nil
+	if len(result.Results) < 1 {
+		return nil, fmt.Errorf("no results for '%s' endpoint", endpoint)
+	}
+
+	r := result.Results[0]
+
+	return r.Perfdata, nil
 }
 
 func (icinga *Client) GetCIBMetrics() (CIBResult, error) {
 	var result CIBResult
 
-	body, errBody := icinga.fetchJSON(endpointCIB)
+	body, errBody := icinga.fetchJSON(EndpointCIB)
 
 	if errBody != nil {
 		return result, fmt.Errorf("error fetching response: %w", errBody)
@@ -134,25 +141,7 @@ func (icinga *Client) GetCIBMetrics() (CIBResult, error) {
 func (icinga *Client) GetApplicationMetrics() (ApplicationResult, error) {
 	var result ApplicationResult
 
-	body, errBody := icinga.fetchJSON(endpointApplication)
-
-	if errBody != nil {
-		return result, fmt.Errorf("error fetching response: %w", errBody)
-	}
-
-	errDecode := json.Unmarshal(body, &result)
-
-	if errDecode != nil {
-		return result, fmt.Errorf("error parsing response: %w", errDecode)
-	}
-
-	return result, nil
-}
-
-func (icinga *Client) GetCheckerComponentMetrics() (CheckerComponentResult, error) {
-	var result CheckerComponentResult
-
-	body, errBody := icinga.fetchJSON(endpointCheckerComponent)
+	body, errBody := icinga.fetchJSON(EndpointApplication)
 
 	if errBody != nil {
 		return result, fmt.Errorf("error fetching response: %w", errBody)

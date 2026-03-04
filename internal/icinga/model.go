@@ -6,7 +6,7 @@ type Perfdata struct {
 	Value     float64 `json:"value"`
 }
 
-type APIResult struct {
+type PerfdataResult struct {
 	Results []struct {
 		Name     string     `json:"name"`
 		Perfdata []Perfdata `json:"perfdata,omitempty"`

@@ -14,6 +14,12 @@ See the `-help` output for more options.
       Include CIB data
 -collector.checker
       Include CheckerComponent data
+-collector.graphite
+      Include GraphiteWriter data
+-collector.influx
+      Include InfluxDBWriter  data
+-collector.influx2
+      Include InfluxDB2Writer data
 -debug
       Enable debug logging
 -icinga.api string
@@ -52,6 +58,9 @@ The tables below list all existing collectors.
 | APIListener   | `-collector.apilistener` |
 | CIB           | `-collector.cib`         |
 | CheckerComponent | `-collector.checker`  |
+| InfluxDBWriter   | `-collector.influx`   |
+| InfluxDB2Writer  | `-collector.influx2`  |
+| GraphiteWriter   | `-collector.graphite` |
 
 # Development
 

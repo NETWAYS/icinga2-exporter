@@ -140,75 +140,39 @@ func Test_GetApplicationMetrics(t *testing.T) {
 	}
 }
 
-func Test_GetApiListenerMetrics(t *testing.T) {
+func Test_GetPerfdataMetrics(t *testing.T) {
 	testcases := map[string]struct {
-		expected APIResult
+		expected []Perfdata
+		endpoint string
 		server   *httptest.Server
 	}{
-		"application": {
+		"api": {
 			server: httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
 				w.Write(loadTestdata(icingaTestDataAPI1))
 			})),
-			expected: APIResult{
-				Results: []struct {
-					Name     string     `json:"name"`
-					Perfdata []Perfdata `json:"perfdata,omitempty"`
-				}{
-					{
-						Name: "ApiListener",
-						Perfdata: []Perfdata{
-							{Label: "api_num_conn_endpoints", Value: 11},
-						},
-					},
+			endpoint: EndpointApiListener,
+			expected: []Perfdata{
+				{
+					Label: "api_num_conn_endpoints",
+					Value: 11,
 				},
 			},
 		},
-	}
-
-	for name, test := range testcases {
-		t.Run(name, func(t *testing.T) {
-			defer test.server.Close()
-
-			cfg := testConfig(test.server)
-
-			cli, _ := NewClient(cfg)
-
-			actual, err := cli.GetApiListenerMetrics()
-
-			if err != nil {
-				t.Fatalf("did not expect error got:\n %+v", err)
-			}
-
-			if !reflect.DeepEqual(test.expected, actual) {
-				t.Fatalf("expected:\n %+v \ngot:\n %+v", test.expected, actual)
-			}
-		})
-	}
-}
-
-func Test_GetCheckerMetrics(t *testing.T) {
-	testcases := map[string]struct {
-		expected CheckerComponentResult
-		server   *httptest.Server
-	}{
-		"application": {
+		"checker": {
 			server: httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
 				w.Write(loadTestdata(icingaTestDataCheck1))
 			})),
-			expected: CheckerComponentResult{
-				Results: []struct {
-					Name     string     `json:"name"`
-					Perfdata []Perfdata `json:"perfdata,omitempty"`
-				}{
-					{
-						Name: "CheckerComponent",
-						Perfdata: []Perfdata{
-							{Label: "checkercomponent_checker_idle", Value: 15},
-							{Label: "checkercomponent_checker_pending", Value: 10},
-						},
-					},
+			endpoint: EndpointCheckerComponent,
+			expected: []Perfdata{
+				{
+					Label: "checkercomponent_checker_idle",
+					Value: 15,
+				},
+				{
+					Label: "checkercomponent_checker_pending",
+					Value: 10,
 				},
 			},
 		},
@@ -222,7 +186,7 @@ func Test_GetCheckerMetrics(t *testing.T) {
 
 			cli, _ := NewClient(cfg)
 
-			actual, err := cli.GetCheckerComponentMetrics()
+			actual, err := cli.GetPerfdataMetrics(test.endpoint)
 
 			if err != nil {
 				t.Fatalf("did not expect error got:\n %+v", err)
