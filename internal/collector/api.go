@@ -49,15 +49,15 @@ func (collector *Icinga2APICollector) Collect(ch chan<- prometheus.Metric) {
 		}
 
 		if datapoint.Label == "api_num_not_conn_endpoints" {
-			ch <- prometheus.MustNewConstMetric(collector.api_num_conn_endpoints, prometheus.GaugeValue, datapoint.Value)
+			ch <- prometheus.MustNewConstMetric(collector.api_num_not_conn_endpoints, prometheus.GaugeValue, datapoint.Value)
 		}
 
 		if datapoint.Label == "api_num_endpoints" {
-			ch <- prometheus.MustNewConstMetric(collector.api_num_conn_endpoints, prometheus.GaugeValue, datapoint.Value)
+			ch <- prometheus.MustNewConstMetric(collector.api_num_endpoints, prometheus.GaugeValue, datapoint.Value)
 		}
 
 		if datapoint.Label == "api_num_http_clients" {
-			ch <- prometheus.MustNewConstMetric(collector.api_num_conn_endpoints, prometheus.GaugeValue, datapoint.Value)
+			ch <- prometheus.MustNewConstMetric(collector.api_num_http_clients, prometheus.GaugeValue, datapoint.Value)
 		}
 	}
 }
