@@ -1,6 +1,6 @@
-# Icinga2 API exporter
+# Icinga2 exporter
 
-Prometheus exporter for the Icinga2 API.
+Prometheus exporter for Icinga2.
 
 ## Installation and Usage
 
@@ -65,6 +65,19 @@ The tables below list all existing collectors.
 | GraphiteWriter   | `-collector.graphite` |
 
 # Development
+
+Prerequisites:
+
+* [Go compiler](https://golang.org/dl/)
+
+Building:
+
+```
+git clone https://github.com/NETWAYS/icinga2-exporter.git
+cd icinga2-exporter
+make build
+./dist/icinga2-exporter <flags>
+```
 
 Running tests:
 
