@@ -20,6 +20,8 @@ See the `-help` output for more options.
       Include InfluxDBWriter  data
 -collector.influx2
       Include InfluxDB2Writer data
+-collector.otlpmetrics
+      Include OTLPWriter data
 -debug
       Enable debug logging
 -icinga.api string

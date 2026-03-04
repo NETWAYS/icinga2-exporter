@@ -62,6 +62,7 @@ func main() {
 		cliCollectorInflux      bool
 		cliCollectorInflux2     bool
 		cliCollectorGraphite    bool
+		cliCollectorOTLP        bool
 	)
 
 	flag.StringVar(&cliListenAddress, "web.listen-address", ":9665", "Address on which to expose metrics and web interface.")
@@ -82,6 +83,7 @@ func main() {
 	flag.BoolVar(&cliCollectorInflux, "collector.influx", false, "Include InfluxDBWriter  data")
 	flag.BoolVar(&cliCollectorInflux2, "collector.influx2", false, "Include InfluxDB2Writer data")
 	flag.BoolVar(&cliCollectorGraphite, "collector.graphite", false, "Include GraphiteWriter data")
+	flag.BoolVar(&cliCollectorOTLP, "collector.otlpmetrics", false, "Include OTLPMetricsWriter data")
 
 	flag.BoolVar(&cliVersion, "version", false, "Print version")
 	flag.BoolVar(&cliDebugLog, "debug", false, "Enable debug logging")
@@ -156,6 +158,10 @@ func main() {
 
 	if cliCollectorGraphite {
 		prometheus.MustRegister(collector.NewIcinga2GraphiteCollector(c, logger))
+	}
+
+	if cliCollectorOTLP {
+		prometheus.MustRegister(collector.NewIcinga2OTLPMetricsCollector(c, logger))
 	}
 
 	// Create a central context to propagate a shutdown
