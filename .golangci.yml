@@ -43,6 +43,7 @@ linters:
         linters:
           - gocognit
           - gocyclo
+          - maintidx
 formatters:
   enable:
     - gofmt
