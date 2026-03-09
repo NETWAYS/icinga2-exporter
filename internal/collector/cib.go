@@ -23,10 +23,25 @@ type Icinga2CIBCollector struct {
 	current_concurrent_checks *prometheus.Desc
 	current_pending_callbacks *prometheus.Desc
 	remote_check_queue        *prometheus.Desc
-	passive_host_checks       *prometheus.Desc
-	passive_service_checks    *prometheus.Desc
-	active_host_checks        *prometheus.Desc
-	active_service_checks     *prometheus.Desc
+
+	// Active Checks
+	active_host_checks          *prometheus.Desc
+	active_host_checks_15min    *prometheus.Desc
+	active_host_checks_1min     *prometheus.Desc
+	active_host_checks_5min     *prometheus.Desc
+	active_service_checks       *prometheus.Desc
+	active_service_checks_15min *prometheus.Desc
+	active_service_checks_1min  *prometheus.Desc
+	active_service_checks_5min  *prometheus.Desc
+	// Passive Checks
+	passive_host_checks          *prometheus.Desc
+	passive_host_checks_15min    *prometheus.Desc
+	passive_host_checks_1min     *prometheus.Desc
+	passive_host_checks_5min     *prometheus.Desc
+	passive_service_checks       *prometheus.Desc
+	passive_service_checks_15min *prometheus.Desc
+	passive_service_checks_1min  *prometheus.Desc
+	passive_service_checks_5min  *prometheus.Desc
 
 	// Num Hosts
 	num_hosts_up           *prometheus.Desc
@@ -69,10 +84,26 @@ func NewIcinga2CIBCollector(client *icinga.Client, logger *slog.Logger) *Icinga2
 		current_concurrent_checks: prometheus.NewDesc("icinga2_current_concurrent_checks", "Current concurrent checks", nil, nil),
 		current_pending_callbacks: prometheus.NewDesc("icinga2_current_pending_callbacks", "Current pending callbacks", nil, nil),
 		remote_check_queue:        prometheus.NewDesc("icinga2_remote_check_queue", "Remote check queue size", nil, nil),
-		passive_host_checks:       prometheus.NewDesc("icinga2_passive_host_checks", "Passive host checks", nil, nil),
-		passive_service_checks:    prometheus.NewDesc("icinga2_passive_service_checks", "Passive service checks", nil, nil),
-		active_host_checks:        prometheus.NewDesc("icinga2_active_host_checks", "Active host checks", nil, nil),
-		active_service_checks:     prometheus.NewDesc("icinga2_active_service_checks", "Active service checks", nil, nil),
+
+		// Active Checks
+		active_host_checks:          prometheus.NewDesc("icinga2_active_host_checks", "Active host checks", nil, nil),
+		active_host_checks_15min:    prometheus.NewDesc("icinga2_active_host_checks_15min", "Active host checks last 15min", nil, nil),
+		active_host_checks_1min:     prometheus.NewDesc("icinga2_active_host_checks_1min", "Active host checks last 1min", nil, nil),
+		active_host_checks_5min:     prometheus.NewDesc("icinga2_active_host_checks_5min", "Active host checks last 5min", nil, nil),
+		active_service_checks:       prometheus.NewDesc("icinga2_active_service_checks", "Active service checks", nil, nil),
+		active_service_checks_15min: prometheus.NewDesc("icinga2_active_service_checks_15min", "Active service checks last 15min", nil, nil),
+		active_service_checks_1min:  prometheus.NewDesc("icinga2_active_service_checks_1min", "Active service checks last 1min", nil, nil),
+		active_service_checks_5min:  prometheus.NewDesc("icinga2_active_service_checks_5min", "Active service checks last 5min", nil, nil),
+		// Passive Checks
+		passive_host_checks:          prometheus.NewDesc("icinga2_passive_host_checks", "Passive host checks", nil, nil),
+		passive_host_checks_15min:    prometheus.NewDesc("icinga2_passive_host_checks_15min", "Passive host checks last 15min", nil, nil),
+		passive_host_checks_1min:     prometheus.NewDesc("icinga2_passive_host_checks_1min", "Passive host checks last 1min", nil, nil),
+		passive_host_checks_5min:     prometheus.NewDesc("icinga2_passive_host_checks_5min", "Passive host checks last 5min", nil, nil),
+		passive_service_checks:       prometheus.NewDesc("icinga2_passive_service_checks", "Passive service checks", nil, nil),
+		passive_service_checks_15min: prometheus.NewDesc("icinga2_passive_service_checks_15min", "Passive service checks last 15min", nil, nil),
+		passive_service_checks_1min:  prometheus.NewDesc("icinga2_passive_service_checks_1min", "Passive service checks last 1min", nil, nil),
+		passive_service_checks_5min:  prometheus.NewDesc("icinga2_passive_service_checks_5min", "Passive service checks last 5min", nil, nil),
+
 		// Num Hosts
 		num_hosts_up:           prometheus.NewDesc("icinga2_num_hosts_up", "Number of hosts Up", nil, nil),
 		num_hosts_down:         prometheus.NewDesc("icinga2_num_hosts_down", "Number of hosts Down", nil, nil),
@@ -110,10 +141,26 @@ func (collector *Icinga2CIBCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.current_concurrent_checks
 	ch <- collector.current_pending_callbacks
 	ch <- collector.remote_check_queue
-	ch <- collector.passive_host_checks
-	ch <- collector.passive_service_checks
+
+	// Active Checks
 	ch <- collector.active_host_checks
+	ch <- collector.active_host_checks_15min
+	ch <- collector.active_host_checks_1min
+	ch <- collector.active_host_checks_5min
 	ch <- collector.active_service_checks
+	ch <- collector.active_service_checks_15min
+	ch <- collector.active_service_checks_1min
+	ch <- collector.active_service_checks_5min
+	// Passive Checks
+	ch <- collector.passive_host_checks
+	ch <- collector.passive_host_checks_15min
+	ch <- collector.passive_host_checks_1min
+	ch <- collector.passive_host_checks_5min
+	ch <- collector.passive_service_checks
+	ch <- collector.passive_service_checks_15min
+	ch <- collector.passive_service_checks_1min
+	ch <- collector.passive_service_checks_5min
+
 	// Num Hosts
 	ch <- collector.num_hosts_up
 	ch <- collector.num_hosts_down
@@ -183,17 +230,57 @@ func (collector *Icinga2CIBCollector) Collect(ch chan<- prometheus.Metric) {
 	if v, ok := r.Status["remote_check_queue"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.remote_check_queue, prometheus.GaugeValue, v)
 	}
+
+	// Active Checks
+	if v, ok := r.Status["active_host_checks"]; ok {
+		ch <- prometheus.MustNewConstMetric(collector.active_host_checks, prometheus.GaugeValue, v)
+	}
+	if v, ok := r.Status["active_host_checks_15min"]; ok {
+		ch <- prometheus.MustNewConstMetric(collector.active_host_checks_15min, prometheus.GaugeValue, v)
+	}
+	if v, ok := r.Status["active_host_checks_1min"]; ok {
+		ch <- prometheus.MustNewConstMetric(collector.active_host_checks_1min, prometheus.GaugeValue, v)
+	}
+	if v, ok := r.Status["active_host_checks_5min"]; ok {
+		ch <- prometheus.MustNewConstMetric(collector.active_host_checks_5min, prometheus.GaugeValue, v)
+	}
+	if v, ok := r.Status["active_service_checks"]; ok {
+		ch <- prometheus.MustNewConstMetric(collector.active_service_checks, prometheus.GaugeValue, v)
+	}
+	if v, ok := r.Status["active_service_checks_15min"]; ok {
+		ch <- prometheus.MustNewConstMetric(collector.active_service_checks_15min, prometheus.GaugeValue, v)
+	}
+	if v, ok := r.Status["active_service_checks_1min"]; ok {
+		ch <- prometheus.MustNewConstMetric(collector.active_service_checks_1min, prometheus.GaugeValue, v)
+	}
+	if v, ok := r.Status["active_service_checks_5min"]; ok {
+		ch <- prometheus.MustNewConstMetric(collector.active_service_checks_5min, prometheus.GaugeValue, v)
+	}
+
+	// Passive Checks
 	if v, ok := r.Status["passive_host_checks"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.passive_host_checks, prometheus.GaugeValue, v)
+	}
+	if v, ok := r.Status["passive_host_checks_15min"]; ok {
+		ch <- prometheus.MustNewConstMetric(collector.passive_host_checks_15min, prometheus.GaugeValue, v)
+	}
+	if v, ok := r.Status["passive_host_checks_1min"]; ok {
+		ch <- prometheus.MustNewConstMetric(collector.passive_host_checks_1min, prometheus.GaugeValue, v)
+	}
+	if v, ok := r.Status["passive_host_checks_5min"]; ok {
+		ch <- prometheus.MustNewConstMetric(collector.passive_host_checks_5min, prometheus.GaugeValue, v)
 	}
 	if v, ok := r.Status["passive_service_checks"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.passive_service_checks, prometheus.GaugeValue, v)
 	}
-	if v, ok := r.Status["active_host_checks"]; ok {
-		ch <- prometheus.MustNewConstMetric(collector.active_host_checks, prometheus.GaugeValue, v)
+	if v, ok := r.Status["passive_service_checks_15min"]; ok {
+		ch <- prometheus.MustNewConstMetric(collector.passive_service_checks_15min, prometheus.GaugeValue, v)
 	}
-	if v, ok := r.Status["active_service_checks"]; ok {
-		ch <- prometheus.MustNewConstMetric(collector.active_service_checks, prometheus.GaugeValue, v)
+	if v, ok := r.Status["passive_service_checks_1min"]; ok {
+		ch <- prometheus.MustNewConstMetric(collector.passive_service_checks_1min, prometheus.GaugeValue, v)
+	}
+	if v, ok := r.Status["passive_service_checks_5min"]; ok {
+		ch <- prometheus.MustNewConstMetric(collector.passive_service_checks_5min, prometheus.GaugeValue, v)
 	}
 
 	// Hosts
