@@ -11,6 +11,7 @@ coverage.out
 *.benchmark
 
 # Binaries for programs and plugins
+icinga2-exporter
 dist/
 *.exe
 *.exe~
