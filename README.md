@@ -1,10 +1,12 @@
 # Icinga2 exporter
 
-Prometheus exporter for Icinga2.
+A Prometheus exporter for Icinga2.
+
+The `icinga2-exporter` for Prometheus allows you to scrape status and statistics information from Icinga2 to monitor the health of the Icinga instance.
 
 ## Installation and Usage
 
-The `icinga2_exporter` listens on HTTP port 9665 by default.
+The `icinga2-exporter` listens on HTTP port 9665 by default.
 See the `-help` output for more options.
 
 ```
@@ -47,6 +49,11 @@ See the `-help` output for more options.
 -web.metrics-path string
       Path under which to expose metrics. (default "/metrics")
 ```
+
+### Cache
+
+The exporter caches the responses from the Icinga2 API to decrease load on the API.
+The lifetime of the cache can be adjusted with `-web.cache-ttl`.
 
 ## Collectors
 

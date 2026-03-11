@@ -20,7 +20,7 @@ release:
   draft: true
   github:
     owner: NETWAYS
-    name: icinga-exporter
+    name: icinga2-exporter
 archives:
   - formats:
     - binary

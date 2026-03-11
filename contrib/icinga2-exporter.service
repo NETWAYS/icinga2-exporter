@@ -1,0 +1,24 @@
+# Example systemd unit
+
+[Unit]
+Description=Prometheus exporter for Icinga2
+Documentation=https://github.com/NETWAYS/icinga2-exporter
+After=network.target
+
+[Service]
+EnvironmentFile=-/etc/default/icinga2-exporter
+User=icinga2-exporter
+ExecStart=/usr/bin/icinga2-exporter $ICINGA2_EXPORTER_OPTS
+ExecReload=/bin/kill -HUP $MAINPID
+TimeoutStopSec=20s
+SendSIGKILL=no
+Restart=on-failure
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateUsers=true
+ProtectHome=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+
+[Install]
+WantedBy=multi-user.target
