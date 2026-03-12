@@ -111,6 +111,12 @@ func main() {
 		Level: logLevel,
 	}))
 
+	if cliPassword == "" {
+		if v, ok := os.LookupEnv("ICINGA2_EXPORTER_HTTP_PASSWORD"); ok {
+			cliPassword = v
+		}
+	}
+
 	// In general, listen to gosec. But it this case, I don't think someone
 	// is going to overflow the uint TTL for the cache lifetime.
 	// nolint:gosec
