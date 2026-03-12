@@ -50,6 +50,14 @@ See the `-help` output for more options.
       Path under which to expose metrics. (default "/metrics")
 ```
 
+### Environment Variables
+
+Some values can be set via environment variables:
+
+| Name     | Description |
+| -------- | ----------- |
+| ICINGA2_EXPORTER_HTTP_PASSWORD   | Password to use for basic auth |
+
 ### Cache
 
 The exporter caches the responses from the Icinga2 API to decrease load on the API.
