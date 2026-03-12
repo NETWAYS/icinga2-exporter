@@ -2,7 +2,7 @@
 
 A Prometheus exporter for Icinga2.
 
-The `icinga2-exporter` for Prometheus allows you to scrape status and statistics information from Icinga2 to monitor the health of the Icinga instance.
+The `icinga2-exporter` for Prometheus allows you to scrape status and statistics information from Icinga2 to monitor the health of the Icinga instance. The exporter does not export data from individual hosts or services, for this you can use Icinga2's OTLPMetricsWriter.
 
 ## Installation and Usage
 
