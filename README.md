@@ -23,7 +23,7 @@ See the `-help` output for more options.
 -collector.influx2
       Include InfluxDB2Writer data
 -collector.otlpmetrics
-      Include OTLPWriter data
+      Include OTLPMetricsWriter data
 -debug
       Enable debug logging
 -icinga.api string
@@ -78,6 +78,7 @@ The tables below list all existing collectors.
 | InfluxDBWriter   | `-collector.influx`   |
 | InfluxDB2Writer  | `-collector.influx2`  |
 | GraphiteWriter   | `-collector.graphite` |
+| OTLPMetricsWriter | `-collector.otlpmetrics` |
 
 # Development
 
