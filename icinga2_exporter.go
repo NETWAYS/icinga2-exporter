@@ -70,8 +70,8 @@ func main() {
 	flag.UintVar(&cliCacheTTL, "web.cache-ttl", 60, "Cache lifetime in seconds for the Icinga API responses")
 
 	flag.StringVar(&cliBaseURL, "icinga.api", "https://localhost:5665/v1", "Path to the Icinga2 API")
-	flag.StringVar(&cliUsername, "icinga.username", "", "Icinga2 API Username")
-	flag.StringVar(&cliPassword, "icinga.password", "", "Icinga2 API Password")
+	flag.StringVar(&cliUsername, "icinga.username", "", "Username for the Icinga2 API user")
+	flag.StringVar(&cliPassword, "icinga.password", "", "Password for the Icinga2 API user. This can also be set via the ICINGA2_EXPORTER_HTTP_PASSWORD environment variable")
 	flag.StringVar(&cliCAFile, "icinga.cafile", "", "Path to the Icinga2 API TLS CA")
 	flag.StringVar(&cliCertFile, "icinga.certfile", "", "Path to the Icinga2 API TLS cert")
 	flag.StringVar(&cliKeyFile, "icinga.keyfile", "", "Path to the Icinga2 API TLS key")

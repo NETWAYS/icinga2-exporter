@@ -39,9 +39,9 @@ See the `-help` output for more options.
 -icinga.keyfile string
       Path to the Icinga2 API TLS key
 -icinga.password string
-      Icinga2 API Password
+      Password for the Icinga2 API user. This can also be set via the ICINGA2_EXPORTER_HTTP_PASSWORD environment variable.
 -icinga.username string
-      Icinga2 API Username
+      Username for the Icinga2 API user
 -version
       Print version
 -web.cache-ttl uint
@@ -52,13 +52,15 @@ See the `-help` output for more options.
       Path under which to expose metrics. (default "/metrics")
 ```
 
+Note that the exporter does not offer authentication. This must be done via a reverse proxy, for example.
+
 ### Environment Variables
 
 Some values can be set via environment variables:
 
 | Name     | Description |
 | -------- | ----------- |
-| ICINGA2_EXPORTER_HTTP_PASSWORD   | Password to use for basic auth |
+| ICINGA2_EXPORTER_HTTP_PASSWORD   | Password for the Icinga2 API User |
 
 ### Cache
 
