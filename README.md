@@ -4,6 +4,8 @@ A Prometheus exporter for Icinga2.
 
 The `icinga2-exporter` for Prometheus allows you to scrape status and statistics information from Icinga2 to monitor the health of the Icinga instance. The exporter does not export data from individual hosts or services, for this you can use Icinga2's OTLPMetricsWriter.
 
+![icinga2-exporter Dashboard](contrib/example-dashboard.png)
+
 ## Installation and Usage
 
 The `icinga2-exporter` listens on HTTP port 9665 by default.
