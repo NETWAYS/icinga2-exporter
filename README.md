@@ -6,6 +6,11 @@ The `icinga2-exporter` for Prometheus allows you to scrape status and statistics
 
 ![icinga2-exporter Dashboard](contrib/example-dashboard.png)
 
+Other Icinga and Prometheus Integrations we provide:
+
+* https://github.com/NETWAYS/check_prometheus
+* https://github.com/NETWAYS/icingaweb2-module-perfdatagraphs-prometheus
+
 ## Installation and Usage
 
 The `icinga2-exporter` listens on HTTP port 9665 by default.
