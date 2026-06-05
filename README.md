@@ -10,6 +10,8 @@ Other Icinga and Prometheus Integrations we provide:
 
 * https://github.com/NETWAYS/check_prometheus
 * https://github.com/NETWAYS/icingaweb2-module-perfdatagraphs-prometheus
+* https://github.com/NETWAYS/alertmanager-icinga-bridge
+* https://github.com/NETWAYS/notify-alertmanager
 
 ## Installation and Usage
 
