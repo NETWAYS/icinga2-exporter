@@ -30,8 +30,11 @@ func NewIcinga2APICollector(client *icinga.Client, logger *slog.Logger) *Icinga2
 
 func (collector *Icinga2APICollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.api_num_conn_endpoints
+
 	ch <- collector.api_num_not_conn_endpoints
+
 	ch <- collector.api_num_endpoints
+
 	ch <- collector.api_num_http_clients
 }
 

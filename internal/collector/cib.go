@@ -151,6 +151,7 @@ func (collector *Icinga2CIBCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.active_service_checks_15min
 	ch <- collector.active_service_checks_1min
 	ch <- collector.active_service_checks_5min
+
 	// Passive Checks
 	ch <- collector.passive_host_checks
 	ch <- collector.passive_host_checks_15min
@@ -171,6 +172,7 @@ func (collector *Icinga2CIBCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.num_hosts_pending
 	ch <- collector.num_hosts_problem
 	ch <- collector.num_hosts_unreachable
+
 	// Num Services
 	ch <- collector.num_services_ok
 	ch <- collector.num_services_critical
@@ -203,143 +205,179 @@ func (collector *Icinga2CIBCollector) Collect(ch chan<- prometheus.Metric) {
 	if v, ok := r.Status["uptime"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.uptime, prometheus.CounterValue, v)
 	}
+
 	if v, ok := r.Status["avg_execution_time"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.avg_execution_time, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["avg_latency"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.avg_latency, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["max_execution_time"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.max_execution_time, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["max_latency"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.max_latency, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["min_execution_time"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.min_execution_time, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["min_latency"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.min_latency, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["current_concurrent_checks"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.current_concurrent_checks, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["current_pending_callbacks"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.current_pending_callbacks, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["remote_check_queue"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.remote_check_queue, prometheus.GaugeValue, v)
 	}
-
 	// Active Checks
 	if v, ok := r.Status["active_host_checks"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.active_host_checks, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["active_host_checks_15min"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.active_host_checks_15min, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["active_host_checks_1min"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.active_host_checks_1min, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["active_host_checks_5min"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.active_host_checks_5min, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["active_service_checks"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.active_service_checks, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["active_service_checks_15min"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.active_service_checks_15min, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["active_service_checks_1min"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.active_service_checks_1min, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["active_service_checks_5min"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.active_service_checks_5min, prometheus.GaugeValue, v)
 	}
-
 	// Passive Checks
 	if v, ok := r.Status["passive_host_checks"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.passive_host_checks, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["passive_host_checks_15min"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.passive_host_checks_15min, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["passive_host_checks_1min"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.passive_host_checks_1min, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["passive_host_checks_5min"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.passive_host_checks_5min, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["passive_service_checks"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.passive_service_checks, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["passive_service_checks_15min"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.passive_service_checks_15min, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["passive_service_checks_1min"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.passive_service_checks_1min, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["passive_service_checks_5min"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.passive_service_checks_5min, prometheus.GaugeValue, v)
 	}
-
 	// Hosts
 	if v, ok := r.Status["num_hosts_up"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.num_hosts_up, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["num_hosts_down"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.num_hosts_down, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["num_hosts_acknowledged"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.num_hosts_acknowledged, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["num_hosts_flapping"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.num_hosts_flapping, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["num_hosts_handled"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.num_hosts_handled, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["num_hosts_in_downtime"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.num_hosts_in_downtime, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["num_hosts_pending"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.num_hosts_pending, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["num_hosts_problem"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.num_hosts_problem, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["num_hosts_unreachable"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.num_hosts_unreachable, prometheus.GaugeValue, v)
 	}
-
 	// Services
 	if v, ok := r.Status["num_services_ok"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.num_services_ok, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["num_services_critical"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.num_services_critical, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["num_services_acknowledged"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.num_services_acknowledged, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["num_services_flapping"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.num_services_flapping, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["num_services_handled"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.num_services_handled, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["num_services_in_downtime"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.num_services_in_downtime, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["num_services_pending"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.num_services_pending, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["num_services_problem"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.num_services_problem, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["num_services_unreachable"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.num_services_unreachable, prometheus.GaugeValue, v)
 	}
+
 	if v, ok := r.Status["num_services_warning"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.num_services_warning, prometheus.GaugeValue, v)
 	}

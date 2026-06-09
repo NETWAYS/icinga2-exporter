@@ -27,6 +27,7 @@ func NewIcinga2GraphiteCollector(client *icinga.Client, logger *slog.Logger) *Ic
 
 func (collector *Icinga2GraphiteCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.graphitewriter_graphite_work_queue_items
+
 	ch <- collector.graphitewriter_graphite_work_queue_item_rate
 }
 
