@@ -3,13 +3,20 @@ run:
   tests: false
 linters:
   settings:
+    wsl_v5:
+      disable:
+        - err
     revive:
      rules:
         - name: var-naming
           disabled: true
   default: all
-  disable:
+  enable:
     - wsl_v5
+    - gomodguard_v2
+  disable:
+    - wsl
+    - gomodguard
     - dupl
     - godox
     - lll
@@ -41,6 +48,7 @@ linters:
     rules:
       - path: 'internal/collector/cib.go'
         linters:
+          - wsl_v5
           - gocognit
           - gocyclo
           - maintidx

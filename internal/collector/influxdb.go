@@ -28,7 +28,9 @@ func NewIcinga2InfluxDBCollector(client *icinga.Client, logger *slog.Logger) *Ic
 
 func (collector *Icinga2InfluxDBCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.influxdbwriter_influxdb_work_queue_items
+
 	ch <- collector.influxdbwriter_influxdb_work_queue_item_rate
+
 	ch <- collector.influxdbwriter_influxdb_data_queue_items
 }
 

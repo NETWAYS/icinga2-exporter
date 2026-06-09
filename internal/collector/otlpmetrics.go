@@ -30,8 +30,11 @@ func NewIcinga2OTLPMetricsCollector(client *icinga.Client, logger *slog.Logger) 
 
 func (collector *Icinga2OTLPMetricsCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.otlpmetricswriter_otlp_metrics_work_queue_items
+
 	ch <- collector.otlpmetricswriter_otlp_metrics_work_queue_item_rate
+
 	ch <- collector.otlpmetricswriter_otlp_metrics_data_buffer_items
+
 	ch <- collector.otlpmetricswriter_otlp_metrics_data_buffer_bytes
 }
 

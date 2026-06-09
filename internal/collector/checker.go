@@ -26,6 +26,7 @@ func NewIcinga2CheckerCollector(client *icinga.Client, logger *slog.Logger) *Ici
 
 func (collector *Icinga2CheckerCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- collector.checkercomponent_checker_idle
+
 	ch <- collector.checkercomponent_checker_pending
 }
 
