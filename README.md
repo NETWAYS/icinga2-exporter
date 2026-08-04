@@ -52,7 +52,7 @@ See the `-help` output for more options.
 -version
       Print version
 -web.cache-ttl uint
-      Cache lifetime in seconds for the Icinga API responses (default 60)
+      Cache lifetime in seconds for the Icinga API responses. A value <= 0 disables caching. (default 60)
 -web.listen-address string
       Address on which to expose metrics and web interface. (default ":9665")
 -web.metrics-path string

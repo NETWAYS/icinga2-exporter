@@ -22,7 +22,7 @@ import (
 
 // nolint: gochecknoglobals
 var (
-	// These get filled at build time with the proper vaules.
+	// These get filled at build time with the proper values.
 	version = "development"
 	commit  = "HEAD"
 	date    = "latest"
@@ -67,7 +67,7 @@ func main() {
 
 	flag.StringVar(&cliListenAddress, "web.listen-address", ":9665", "Address on which to expose metrics and web interface.")
 	flag.StringVar(&cliMetricsPath, "web.metrics-path", "/metrics", "Path under which to expose metrics.")
-	flag.UintVar(&cliCacheTTL, "web.cache-ttl", 60, "Cache lifetime in seconds for the Icinga API responses")
+	flag.UintVar(&cliCacheTTL, "web.cache-ttl", 60, "Cache lifetime in seconds for the Icinga API responses. A value <= 0 disables caching")
 
 	flag.StringVar(&cliBaseURL, "icinga.api", "https://localhost:5665/v1", "Path to the Icinga2 API")
 	flag.StringVar(&cliUsername, "icinga.username", "", "Username for the Icinga2 API user")
