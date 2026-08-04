@@ -133,7 +133,6 @@ func main() {
 
 	// In general, listen to gosec. But it this case, I don't think someone
 	// is going to overflow the uint TTL for the cache lifetime.
-	// nolint:gosec
 	cacheTTL := time.Duration(cliCacheTTL) * time.Second
 
 	config := icinga.Config{

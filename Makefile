@@ -21,6 +21,6 @@ coverage:
 	go test -v -cover -coverprofile=coverage.out ./... &&\
 	go tool cover -html=coverage.out -o coverage.html
 container:
-	podman build -t icinga-exporter:latest .
+	podman build --pull -t icinga2-exporter:latest .
 clean:
 	rm -f dist/*
