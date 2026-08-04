@@ -22,7 +22,7 @@ import (
 
 // nolint: gochecknoglobals
 var (
-	// These get filled at build time with the proper vaules.
+	// These get filled at build time with the proper values.
 	version = "development"
 	commit  = "HEAD"
 	date    = "latest"
@@ -40,6 +40,19 @@ func buildVersion() string {
 	}
 
 	return result
+}
+
+func isValidURL(s string) (*url.URL, error) {
+	u, err := url.Parse(s)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse URL: %w", err)
+	}
+
+	if u.Scheme == "" || u.Host == "" {
+		return nil, fmt.Errorf("invalid URL '%s': missing scheme or host", s)
+	}
+
+	return u, nil
 }
 
 func main() {
@@ -67,7 +80,7 @@ func main() {
 
 	flag.StringVar(&cliListenAddress, "web.listen-address", ":9665", "Address on which to expose metrics and web interface.")
 	flag.StringVar(&cliMetricsPath, "web.metrics-path", "/metrics", "Path under which to expose metrics.")
-	flag.UintVar(&cliCacheTTL, "web.cache-ttl", 60, "Cache lifetime in seconds for the Icinga API responses")
+	flag.UintVar(&cliCacheTTL, "web.cache-ttl", 60, "Cache lifetime in seconds for the Icinga API responses. A value <= 0 disables caching")
 
 	flag.StringVar(&cliBaseURL, "icinga.api", "https://localhost:5665/v1", "Path to the Icinga2 API")
 	flag.StringVar(&cliUsername, "icinga.username", "", "Username for the Icinga2 API user")
@@ -95,10 +108,11 @@ func main() {
 		os.Exit(0)
 	}
 
-	u, errURL := url.Parse(cliBaseURL)
+	u, errURL := isValidURL(cliBaseURL)
 
 	if errURL != nil {
-		fmt.Fprintf(os.Stderr, "Invalid Icinga2 URL: %v", errURL)
+		fmt.Fprintf(os.Stderr, "Invalid Icinga2 URL: %s", errURL)
+		os.Exit(1)
 	}
 
 	logLevel := slog.LevelInfo
@@ -183,7 +197,7 @@ func main() {
 	}
 
 	http.Handle(cliMetricsPath, promhttp.Handler())
-	//nolint:errcheck
+	//nolint: errcheck
 	http.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
 		w.Write([]byte(`
 			<html>

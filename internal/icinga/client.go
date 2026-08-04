@@ -22,7 +22,6 @@ const (
 	EndpointFileLogger              = "/status/FileLogger"
 	EndpointGelfWriter              = "/status/GelfWriter"
 	EndpointGraphiteWriter          = "/status/GraphiteWriter"
-	EndpointIcingaApplication       = "/status/IcingaApplication"
 	EndpointIdoMysqlConnection      = "/status/IdoMysqlConnection"
 	EndpointIdoPgsqlConnection      = "/status/IdoPgsqlConnection"
 	EndpointInfluxdb2Writer         = "/status/Influxdb2Writer"
@@ -74,6 +73,9 @@ func NewClient(c Config) (*Client, error) {
 		}).DialContext,
 		TLSHandshakeTimeout: 10 * time.Second,
 		TLSClientConfig:     tlsConfig,
+		IdleConnTimeout:     90 * time.Second,
+		MaxIdleConns:        100,
+		MaxIdleConnsPerHost: 10,
 	}
 
 	// Using a BasicAuth for authentication
@@ -96,10 +98,10 @@ func NewClient(c Config) (*Client, error) {
 }
 
 // GetPerfdataMetrics returns the perfdata from a given status API endpoint
-func (icinga *Client) GetPerfdataMetrics(endpoint string) ([]Perfdata, error) {
+func (c *Client) GetPerfdataMetrics(endpoint string) ([]Perfdata, error) {
 	var result PerfdataResult
 
-	body, errBody := icinga.fetchJSON(endpoint)
+	body, errBody := c.fetchJSON(endpoint)
 
 	if errBody != nil {
 		return nil, fmt.Errorf("error fetching response: %w", errBody)
@@ -120,10 +122,10 @@ func (icinga *Client) GetPerfdataMetrics(endpoint string) ([]Perfdata, error) {
 	return r.Perfdata, nil
 }
 
-func (icinga *Client) GetCIBMetrics() (CIBResult, error) {
+func (c *Client) GetCIBMetrics() (CIBResult, error) {
 	var result CIBResult
 
-	body, errBody := icinga.fetchJSON(EndpointCIB)
+	body, errBody := c.fetchJSON(EndpointCIB)
 
 	if errBody != nil {
 		return result, fmt.Errorf("error fetching response: %w", errBody)
@@ -138,10 +140,10 @@ func (icinga *Client) GetCIBMetrics() (CIBResult, error) {
 	return result, nil
 }
 
-func (icinga *Client) GetApplicationMetrics() (ApplicationResult, error) {
+func (c *Client) GetApplicationMetrics() (ApplicationResult, error) {
 	var result ApplicationResult
 
-	body, errBody := icinga.fetchJSON(EndpointApplication)
+	body, errBody := c.fetchJSON(EndpointApplication)
 
 	if errBody != nil {
 		return result, fmt.Errorf("error fetching response: %w", errBody)
@@ -156,16 +158,16 @@ func (icinga *Client) GetApplicationMetrics() (ApplicationResult, error) {
 	return result, nil
 }
 
-func (icinga *Client) fetchJSON(endpoint string) ([]byte, error) {
+func (c *Client) fetchJSON(endpoint string) ([]byte, error) {
 	// Lookup data in the cache we go out and bother the Icinga API
-	if elem, ok := icinga.cache.Get(endpoint); ok {
+	if elem, ok := c.cache.Get(endpoint); ok {
 		return elem, nil
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	u := icinga.URL.JoinPath(endpoint)
+	u := c.URL.JoinPath(endpoint)
 
 	req, errReq := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
 
@@ -173,17 +175,19 @@ func (icinga *Client) fetchJSON(endpoint string) ([]byte, error) {
 		return []byte{}, fmt.Errorf("error creating request: %w", errReq)
 	}
 
-	resp, errDo := icinga.Client.Do(req)
+	resp, errDo := c.Client.Do(req)
 
 	if errDo != nil {
 		return []byte{}, fmt.Errorf("error performing request: %w", errDo)
 	}
 
+	defer resp.Body.Close()
+
 	if resp.StatusCode != http.StatusOK {
+		//nolint: errcheck
+		io.Copy(io.Discard, resp.Body)
 		return []byte{}, fmt.Errorf("request failed: %s", resp.Status)
 	}
-
-	defer resp.Body.Close()
 
 	data, errRead := io.ReadAll(resp.Body)
 
@@ -191,7 +195,7 @@ func (icinga *Client) fetchJSON(endpoint string) ([]byte, error) {
 		return []byte{}, fmt.Errorf("reading response failed: %w", errRead)
 	}
 
-	icinga.cache.Set(endpoint, data)
+	c.cache.Set(endpoint, data)
 
 	return data, nil
 }
