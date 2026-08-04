@@ -42,6 +42,19 @@ func buildVersion() string {
 	return result
 }
 
+func isValidURL(s string) (*url.URL, error) {
+	u, err := url.Parse(s)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse URL: %w", err)
+	}
+
+	if u.Scheme == "" || u.Host == "" {
+		return nil, fmt.Errorf("invalid URL '%s': missing scheme or host", s)
+	}
+
+	return u, nil
+}
+
 func main() {
 	var (
 		cliListenAddress        string
@@ -95,10 +108,11 @@ func main() {
 		os.Exit(0)
 	}
 
-	u, errURL := url.Parse(cliBaseURL)
+	u, errURL := isValidURL(cliBaseURL)
 
 	if errURL != nil {
-		fmt.Fprintf(os.Stderr, "Invalid Icinga2 URL: %v", errURL)
+		fmt.Fprintf(os.Stderr, "Invalid Icinga2 URL: %s", errURL)
+		os.Exit(1)
 	}
 
 	logLevel := slog.LevelInfo
@@ -183,7 +197,7 @@ func main() {
 	}
 
 	http.Handle(cliMetricsPath, promhttp.Handler())
-	//nolint:errcheck
+	//nolint: errcheck
 	http.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
 		w.Write([]byte(`
 			<html>
