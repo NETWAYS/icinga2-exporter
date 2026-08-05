@@ -3,20 +3,20 @@ package collector
 import (
 	"log/slog"
 
-	"github.com/martialblog/icinga2-exporter/internal/icinga"
+	"github.com/NETWAYS/icinga2-exporter/internal/icinga"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 type Icinga2InfluxDB2Collector struct {
-	icingaClient                                   *icinga.Client
+	icingaClient                                   icinga.IcingaClient
 	logger                                         *slog.Logger
 	influxdb2writer_influxdb2_work_queue_items     *prometheus.Desc
 	influxdb2writer_influxdb2_work_queue_item_rate *prometheus.Desc
 	influxdb2writer_influxdb2_data_queue_items     *prometheus.Desc
 }
 
-func NewIcinga2InfluxDB2Collector(client *icinga.Client, logger *slog.Logger) *Icinga2InfluxDB2Collector {
+func NewIcinga2InfluxDB2Collector(client icinga.IcingaClient, logger *slog.Logger) *Icinga2InfluxDB2Collector {
 	return &Icinga2InfluxDB2Collector{
 		icingaClient: client,
 		logger:       logger,

@@ -3,13 +3,13 @@ package collector
 import (
 	"log/slog"
 
-	"github.com/martialblog/icinga2-exporter/internal/icinga"
+	"github.com/NETWAYS/icinga2-exporter/internal/icinga"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 type Icinga2CIBCollector struct {
-	icingaClient *icinga.Client
+	icingaClient icinga.IcingaClient
 	logger       *slog.Logger
 
 	// Icinga Statistics
@@ -68,7 +68,7 @@ type Icinga2CIBCollector struct {
 	num_services_warning      *prometheus.Desc
 }
 
-func NewIcinga2CIBCollector(client *icinga.Client, logger *slog.Logger) *Icinga2CIBCollector {
+func NewIcinga2CIBCollector(client icinga.IcingaClient, logger *slog.Logger) *Icinga2CIBCollector {
 	return &Icinga2CIBCollector{
 		icingaClient: client,
 		logger:       logger,

@@ -1,6 +1,6 @@
-module github.com/martialblog/icinga2-exporter
+module github.com/NETWAYS/icinga2-exporter
 
-go 1.25.0
+go 1.26
 
 require github.com/prometheus/client_golang v1.24.1
 

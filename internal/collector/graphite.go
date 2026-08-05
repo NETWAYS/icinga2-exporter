@@ -3,20 +3,20 @@ package collector
 import (
 	"log/slog"
 
-	"github.com/martialblog/icinga2-exporter/internal/icinga"
+	"github.com/NETWAYS/icinga2-exporter/internal/icinga"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 type Icinga2GraphiteCollector struct {
-	icingaClient                                 *icinga.Client
+	icingaClient                                 icinga.IcingaClient
 	logger                                       *slog.Logger
 	graphitewriter_graphite_data_queue_items     *prometheus.Desc
 	graphitewriter_graphite_work_queue_items     *prometheus.Desc
 	graphitewriter_graphite_work_queue_item_rate *prometheus.Desc
 }
 
-func NewIcinga2GraphiteCollector(client *icinga.Client, logger *slog.Logger) *Icinga2GraphiteCollector {
+func NewIcinga2GraphiteCollector(client icinga.IcingaClient, logger *slog.Logger) *Icinga2GraphiteCollector {
 	return &Icinga2GraphiteCollector{
 		icingaClient:                                 client,
 		logger:                                       logger,

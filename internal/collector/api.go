@@ -3,13 +3,13 @@ package collector
 import (
 	"log/slog"
 
-	"github.com/martialblog/icinga2-exporter/internal/icinga"
+	"github.com/NETWAYS/icinga2-exporter/internal/icinga"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 type Icinga2APICollector struct {
-	icingaClient               *icinga.Client
+	icingaClient               icinga.IcingaClient
 	logger                     *slog.Logger
 	api_num_conn_endpoints     *prometheus.Desc
 	api_num_not_conn_endpoints *prometheus.Desc
@@ -17,7 +17,7 @@ type Icinga2APICollector struct {
 	api_num_http_clients       *prometheus.Desc
 }
 
-func NewIcinga2APICollector(client *icinga.Client, logger *slog.Logger) *Icinga2APICollector {
+func NewIcinga2APICollector(client icinga.IcingaClient, logger *slog.Logger) *Icinga2APICollector {
 	return &Icinga2APICollector{
 		icingaClient:               client,
 		logger:                     logger,

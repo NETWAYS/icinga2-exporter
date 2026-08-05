@@ -3,18 +3,18 @@ package collector
 import (
 	"log/slog"
 
-	"github.com/martialblog/icinga2-exporter/internal/icinga"
+	"github.com/NETWAYS/icinga2-exporter/internal/icinga"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 type Icinga2ApplicationCollector struct {
-	icingaClient *icinga.Client
+	icingaClient icinga.IcingaClient
 	logger       *slog.Logger
 	info         *prometheus.Desc
 }
 
-func NewIcinga2ApplicationCollector(client *icinga.Client, logger *slog.Logger) *Icinga2ApplicationCollector {
+func NewIcinga2ApplicationCollector(client icinga.IcingaClient, logger *slog.Logger) *Icinga2ApplicationCollector {
 	return &Icinga2ApplicationCollector{
 		icingaClient: client,
 		logger:       logger,

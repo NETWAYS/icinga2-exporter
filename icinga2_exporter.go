@@ -13,8 +13,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/martialblog/icinga2-exporter/internal/collector"
-	"github.com/martialblog/icinga2-exporter/internal/icinga"
+	"github.com/NETWAYS/icinga2-exporter/internal/collector"
+	"github.com/NETWAYS/icinga2-exporter/internal/icinga"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
