@@ -39,7 +39,7 @@ func (collector *Icinga2OTLPMetricsCollector) Describe(ch chan<- *prometheus.Des
 }
 
 func (collector *Icinga2OTLPMetricsCollector) Collect(ch chan<- prometheus.Metric) {
-	perfdata, err := collector.icingaClient.GetPerfdataMetrics(icinga.EndpointGraphiteWriter)
+	perfdata, err := collector.icingaClient.GetPerfdataMetrics(icinga.EndpointOTLPMetricsWriter)
 
 	if err != nil {
 		collector.logger.Error("Could not retrieve OTLPMetrics metrics", "error", err.Error())
