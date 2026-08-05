@@ -30,6 +30,7 @@ const (
 	EndpointLivestatusListener      = "/status/LivestatusListener"
 	EndpointNotificationComponent   = "/status/NotificationComponent"
 	EndpointOpenTsdbWriter          = "/status/OpenTsdbWriter"
+	EndpointOTLPMetricsWriter       = "/status/OTLPMetricsWriter"
 	EndpointPerfdataWriter          = "/status/PerfdataWriter"
 	EndpointSyslogLogger            = "/status/SyslogLogger"
 )
