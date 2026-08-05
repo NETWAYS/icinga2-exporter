@@ -74,7 +74,7 @@ func NewIcinga2CIBCollector(client *icinga.Client, logger *slog.Logger) *Icinga2
 		logger:       logger,
 
 		// Icinga Statistics
-		uptime:                    prometheus.NewDesc("icinga2_uptime", "Uptime of the instance", nil, nil),
+		uptime:                    prometheus.NewDesc("icinga2_uptime_total", "Uptime of the instance", nil, nil),
 		avg_execution_time:        prometheus.NewDesc("icinga2_avg_execution_time", "Average execution time", nil, nil),
 		avg_latency:               prometheus.NewDesc("icinga2_avg_latency", "Average latency", nil, nil),
 		max_execution_time:        prometheus.NewDesc("icinga2_max_execution_time", "Maximum execution time", nil, nil),
@@ -372,6 +372,10 @@ func (collector *Icinga2CIBCollector) Collect(ch chan<- prometheus.Metric) {
 
 	if v, ok := r.Status["num_services_problem"]; ok {
 		ch <- prometheus.MustNewConstMetric(collector.num_services_problem, prometheus.GaugeValue, v)
+	}
+
+	if v, ok := r.Status["num_services_unknown"]; ok {
+		ch <- prometheus.MustNewConstMetric(collector.num_services_unknown, prometheus.GaugeValue, v)
 	}
 
 	if v, ok := r.Status["num_services_unreachable"]; ok {
