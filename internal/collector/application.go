@@ -11,26 +11,19 @@ import (
 type Icinga2ApplicationCollector struct {
 	icingaClient *icinga.Client
 	logger       *slog.Logger
-	info         *prometheus.GaugeVec
+	info         *prometheus.Desc
 }
 
 func NewIcinga2ApplicationCollector(client *icinga.Client, logger *slog.Logger) *Icinga2ApplicationCollector {
 	return &Icinga2ApplicationCollector{
 		icingaClient: client,
 		logger:       logger,
-		info: prometheus.NewGaugeVec(
-			prometheus.GaugeOpts{
-				Namespace: "icinga2",
-				Name:      "version_info",
-				Help:      "A metric with a constant '1' value labeled by version",
-			},
-			[]string{"version"},
-		),
+		info:         prometheus.NewDesc("icinga2_version_info", "A metric with a constant '1' value labeled by version", []string{"version"}, nil),
 	}
 }
 
 func (collector *Icinga2ApplicationCollector) Describe(ch chan<- *prometheus.Desc) {
-	collector.info.Describe(ch)
+	ch <- collector.info
 }
 
 func (collector *Icinga2ApplicationCollector) Collect(ch chan<- prometheus.Metric) {
@@ -48,11 +41,5 @@ func (collector *Icinga2ApplicationCollector) Collect(ch chan<- prometheus.Metri
 
 	r := result.Results[0]
 
-	collector.info.Reset()
-
-	collector.info.With(prometheus.Labels{
-		"version": r.Status.IcingaApplication.App.Version,
-	}).Set(1)
-
-	collector.info.Collect(ch)
+	ch <- prometheus.MustNewConstMetric(collector.info, prometheus.GaugeValue, 1, r.Status.IcingaApplication.App.Version)
 }
