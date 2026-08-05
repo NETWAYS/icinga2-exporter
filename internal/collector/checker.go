@@ -31,20 +31,21 @@ func (collector *Icinga2CheckerCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *Icinga2CheckerCollector) Collect(ch chan<- prometheus.Metric) {
-	perfdata, err := collector.icingaClient.GetPerfdataMetrics(icinga.EndpointCheckerComponent)
+	result, err := collector.icingaClient.GetCheckerComponentMetrics()
 
 	if err != nil {
 		collector.logger.Error("Could not retrieve CheckerComponent metrics", "error", err.Error())
 		return
 	}
 
-	for _, datapoint := range perfdata {
-		if datapoint.Label == "checkercomponent_checker_idle" {
-			ch <- prometheus.MustNewConstMetric(collector.checkercomponent_checker_idle, prometheus.GaugeValue, datapoint.Value)
-		}
-
-		if datapoint.Label == "checkercomponent_checker_pending" {
-			ch <- prometheus.MustNewConstMetric(collector.checkercomponent_checker_pending, prometheus.GaugeValue, datapoint.Value)
-		}
+	if len(result.Results) < 1 {
+		collector.logger.Debug("No results for CheckerComponent metrics")
+		return
 	}
+
+	r := result.Results[0]
+
+	ch <- prometheus.MustNewConstMetric(collector.checkercomponent_checker_idle, prometheus.GaugeValue, r.Status.CheckerComponent.Checker.Idle)
+
+	ch <- prometheus.MustNewConstMetric(collector.checkercomponent_checker_pending, prometheus.GaugeValue, r.Status.CheckerComponent.Checker.Pending)
 }

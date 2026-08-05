@@ -1,0 +1,51 @@
+{
+    "results": [
+        {
+            "name": "Influxdb2Writer",
+            "perfdata": [
+                {
+                    "counter": false,
+                    "crit": null,
+                    "label": "influxdb2writer_influxdb2_work_queue_items",
+                    "max": null,
+                    "min": null,
+                    "type": "PerfdataValue",
+                    "unit": "",
+                    "value": 0,
+                    "warn": null
+                },
+                {
+                    "counter": false,
+                    "crit": null,
+                    "label": "influxdb2writer_influxdb2_work_queue_item_rate",
+                    "max": null,
+                    "min": null,
+                    "type": "PerfdataValue",
+                    "unit": "",
+                    "value": 0.21666666666666667,
+                    "warn": null
+                },
+                {
+                    "counter": false,
+                    "crit": null,
+                    "label": "influxdb2writer_influxdb2_data_queue_items",
+                    "max": null,
+                    "min": null,
+                    "type": "PerfdataValue",
+                    "unit": "",
+                    "value": 74,
+                    "warn": null
+                }
+            ],
+            "status": {
+                "influxdb2writer": {
+                    "influxdb2": {
+                        "data_buffer_items": 74,
+                        "work_queue_item_rate": 0.21666666666666667,
+                        "work_queue_items": 0
+                    }
+                }
+            }
+        }
+    ]
+}

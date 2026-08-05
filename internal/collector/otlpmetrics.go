@@ -1,7 +1,9 @@
 package collector
 
 import (
+	"fmt"
 	"log/slog"
+	"strings"
 
 	"github.com/NETWAYS/icinga2-exporter/internal/icinga"
 
@@ -9,33 +11,18 @@ import (
 )
 
 type Icinga2OTLPMetricsCollector struct {
-	icingaClient                                        icinga.IcingaClient
-	logger                                              *slog.Logger
-	otlpmetricswriter_otlp_metrics_work_queue_items     *prometheus.Desc
-	otlpmetricswriter_otlp_metrics_work_queue_item_rate *prometheus.Desc
-	otlpmetricswriter_otlp_metrics_data_buffer_items    *prometheus.Desc
-	otlpmetricswriter_otlp_metrics_data_buffer_bytes    *prometheus.Desc
+	icingaClient icinga.IcingaClient
+	logger       *slog.Logger
 }
 
 func NewIcinga2OTLPMetricsCollector(client icinga.IcingaClient, logger *slog.Logger) *Icinga2OTLPMetricsCollector {
 	return &Icinga2OTLPMetricsCollector{
 		icingaClient: client,
 		logger:       logger,
-		otlpmetricswriter_otlp_metrics_work_queue_items:     prometheus.NewDesc("icinga2_otlpmetricswriter_otlp_metrics_work_queue_items", "OTLPMetricsWriter work queue items", nil, nil),
-		otlpmetricswriter_otlp_metrics_work_queue_item_rate: prometheus.NewDesc("icinga2_otlpmetricswriter_otlp_metrics_work_queue_item_rate", "OTLPMetricsWriter work queue item rate", nil, nil),
-		otlpmetricswriter_otlp_metrics_data_buffer_items:    prometheus.NewDesc("icinga2_otlpmetricswriter_otlp_metrics_data_buffer_items", "OTLPMetricsWriter data buffer items", nil, nil),
-		otlpmetricswriter_otlp_metrics_data_buffer_bytes:    prometheus.NewDesc("icinga2_otlpmetricswriter_otlp_metrics_data_buffer_bytes", "OTLPMetricsWriter data buffer bytes", nil, nil),
 	}
 }
 
 func (collector *Icinga2OTLPMetricsCollector) Describe(ch chan<- *prometheus.Desc) {
-	ch <- collector.otlpmetricswriter_otlp_metrics_work_queue_items
-
-	ch <- collector.otlpmetricswriter_otlp_metrics_work_queue_item_rate
-
-	ch <- collector.otlpmetricswriter_otlp_metrics_data_buffer_items
-
-	ch <- collector.otlpmetricswriter_otlp_metrics_data_buffer_bytes
 }
 
 func (collector *Icinga2OTLPMetricsCollector) Collect(ch chan<- prometheus.Metric) {
@@ -46,21 +33,30 @@ func (collector *Icinga2OTLPMetricsCollector) Collect(ch chan<- prometheus.Metri
 		return
 	}
 
-	for _, datapoint := range perfdata {
-		if datapoint.Label == "otlpmetricswriter_otlp_metrics_work_queue_items" {
-			ch <- prometheus.MustNewConstMetric(collector.otlpmetricswriter_otlp_metrics_work_queue_items, prometheus.GaugeValue, datapoint.Value)
-		}
+	for _, result := range perfdata.Results {
+		for component, writers := range result.Status {
+			for writer, metrics := range writers {
+				for metricName, value := range metrics {
+					// We only data about work/data items that are numeric values
+					if !strings.HasPrefix(metricName, "data") && !strings.HasPrefix(metricName, "work") {
+						continue
+					}
 
-		if datapoint.Label == "otlpmetricswriter_otlp_metrics_work_queue_item_rate" {
-			ch <- prometheus.MustNewConstMetric(collector.otlpmetricswriter_otlp_metrics_work_queue_item_rate, prometheus.GaugeValue, datapoint.Value)
-		}
+					safeMetricName := strings.ReplaceAll(metricName, "-", "_")
 
-		if datapoint.Label == "otlpmetricswriter_otlp_metrics_data_buffer_items" {
-			ch <- prometheus.MustNewConstMetric(collector.otlpmetricswriter_otlp_metrics_data_buffer_items, prometheus.GaugeValue, datapoint.Value)
-		}
+					name := fmt.Sprintf("icinga2_%s_%s", component, safeMetricName)
 
-		if datapoint.Label == "otlpmetricswriter_otlp_metrics_data_buffer_bytes" {
-			ch <- prometheus.MustNewConstMetric(collector.otlpmetricswriter_otlp_metrics_data_buffer_bytes, prometheus.GaugeValue, datapoint.Value)
+					description := prometheus.NewDesc(name, "OTLPMetricsWriter "+name, []string{"writer"}, nil)
+					metric, err := prometheus.NewConstMetric(description, prometheus.GaugeValue, value, writer)
+
+					if err != nil {
+						collector.logger.Error("Error creating metric %s: %v", metricName, err)
+						continue
+					}
+
+					ch <- metric
+				}
+			}
 		}
 	}
 }

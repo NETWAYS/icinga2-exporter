@@ -1,7 +1,9 @@
 package collector
 
 import (
+	"fmt"
 	"log/slog"
+	"strings"
 
 	"github.com/NETWAYS/icinga2-exporter/internal/icinga"
 
@@ -9,50 +11,52 @@ import (
 )
 
 type Icinga2InfluxDB2Collector struct {
-	icingaClient                                   icinga.IcingaClient
-	logger                                         *slog.Logger
-	influxdb2writer_influxdb2_work_queue_items     *prometheus.Desc
-	influxdb2writer_influxdb2_work_queue_item_rate *prometheus.Desc
-	influxdb2writer_influxdb2_data_queue_items     *prometheus.Desc
+	icingaClient icinga.IcingaClient
+	logger       *slog.Logger
 }
 
 func NewIcinga2InfluxDB2Collector(client icinga.IcingaClient, logger *slog.Logger) *Icinga2InfluxDB2Collector {
 	return &Icinga2InfluxDB2Collector{
 		icingaClient: client,
 		logger:       logger,
-		influxdb2writer_influxdb2_work_queue_items:     prometheus.NewDesc("icinga2_influxdb2writer_influxdb2_work_queue_items", "InfluxDB2Writer work queue items", nil, nil),
-		influxdb2writer_influxdb2_work_queue_item_rate: prometheus.NewDesc("icinga2_influxdb2writer_influxdb2_work_queue_item_rate", "InfluxDB2Writer work queue item rate", nil, nil),
-		influxdb2writer_influxdb2_data_queue_items:     prometheus.NewDesc("icinga2_influxdb2writer_influxdb2_data_queue_items", "InfluxDB2Writer data queue items", nil, nil),
 	}
 }
 
 func (collector *Icinga2InfluxDB2Collector) Describe(ch chan<- *prometheus.Desc) {
-	ch <- collector.influxdb2writer_influxdb2_work_queue_items
-
-	ch <- collector.influxdb2writer_influxdb2_work_queue_item_rate
-
-	ch <- collector.influxdb2writer_influxdb2_data_queue_items
 }
 
 func (collector *Icinga2InfluxDB2Collector) Collect(ch chan<- prometheus.Metric) {
 	perfdata, err := collector.icingaClient.GetPerfdataMetrics(icinga.EndpointInfluxdb2Writer)
 
 	if err != nil {
-		collector.logger.Error("Could not retrieve InfluxDB2 metrics", "error", err.Error())
+		collector.logger.Error("Could not retrieve InfluxDB2Writer metrics", "error", err.Error())
 		return
 	}
 
-	for _, datapoint := range perfdata {
-		if datapoint.Label == "influxdb2writer_influxdb2_work_queue_items" {
-			ch <- prometheus.MustNewConstMetric(collector.influxdb2writer_influxdb2_work_queue_items, prometheus.GaugeValue, datapoint.Value)
-		}
+	for _, result := range perfdata.Results {
+		for component, writers := range result.Status {
+			for writer, metrics := range writers {
+				for metricName, value := range metrics {
+					// We only data about work/data items that are numeric values
+					if !strings.HasPrefix(metricName, "data") && !strings.HasPrefix(metricName, "work") {
+						continue
+					}
 
-		if datapoint.Label == "influxdb2writer_influxdb2_work_queue_item_rate" {
-			ch <- prometheus.MustNewConstMetric(collector.influxdb2writer_influxdb2_work_queue_item_rate, prometheus.GaugeValue, datapoint.Value)
-		}
+					safeMetricName := strings.ReplaceAll(metricName, "-", "_")
 
-		if datapoint.Label == "influxdb2writer_influxdb2_data_queue_items" {
-			ch <- prometheus.MustNewConstMetric(collector.influxdb2writer_influxdb2_data_queue_items, prometheus.GaugeValue, datapoint.Value)
+					name := fmt.Sprintf("icinga2_%s_%s", component, safeMetricName)
+
+					description := prometheus.NewDesc(name, "InfluxDB2Writer "+name, []string{"writer"}, nil)
+					metric, err := prometheus.NewConstMetric(description, prometheus.GaugeValue, value, writer)
+
+					if err != nil {
+						collector.logger.Error("Error creating metric %s: %v", metricName, err)
+						continue
+					}
+
+					ch <- metric
+				}
+			}
 		}
 	}
 }

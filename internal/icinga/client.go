@@ -55,9 +55,11 @@ type Client struct {
 
 // IcingaClient is an interface that we use to simplify testing
 type IcingaClient interface {
-	GetPerfdataMetrics(endpoint string) ([]Perfdata, error)
+	GetPerfdataMetrics(endpoint string) (PerfdataResult, error)
 	GetCIBMetrics() (CIBResult, error)
 	GetApplicationMetrics() (ApplicationResult, error)
+	GetAPIMetrics() (APIResult, error)
+	GetCheckerComponentMetrics() (CheckerComponentResult, error)
 }
 
 // NewClient returns a configured client
@@ -107,28 +109,26 @@ func NewClient(c Config) (*Client, error) {
 }
 
 // GetPerfdataMetrics returns the perfdata from a given status API endpoint
-func (c *Client) GetPerfdataMetrics(endpoint string) ([]Perfdata, error) {
+func (c *Client) GetPerfdataMetrics(endpoint string) (PerfdataResult, error) {
 	var result PerfdataResult
 
 	body, errBody := c.fetchJSON(endpoint)
 
 	if errBody != nil {
-		return nil, fmt.Errorf("error fetching response: %w", errBody)
+		return result, fmt.Errorf("error fetching response: %w", errBody)
 	}
 
 	errDecode := json.Unmarshal(body, &result)
 
 	if errDecode != nil {
-		return nil, fmt.Errorf("error parsing response: %w", errDecode)
+		return result, fmt.Errorf("error parsing response: %w", errDecode)
 	}
 
 	if len(result.Results) < 1 {
-		return nil, fmt.Errorf("no results for '%s' endpoint", endpoint)
+		return result, fmt.Errorf("no results for '%s' endpoint", endpoint)
 	}
 
-	r := result.Results[0]
-
-	return r.Perfdata, nil
+	return result, nil
 }
 
 func (c *Client) GetCIBMetrics() (CIBResult, error) {
@@ -153,6 +153,42 @@ func (c *Client) GetApplicationMetrics() (ApplicationResult, error) {
 	var result ApplicationResult
 
 	body, errBody := c.fetchJSON(EndpointApplication)
+
+	if errBody != nil {
+		return result, fmt.Errorf("error fetching response: %w", errBody)
+	}
+
+	errDecode := json.Unmarshal(body, &result)
+
+	if errDecode != nil {
+		return result, fmt.Errorf("error parsing response: %w", errDecode)
+	}
+
+	return result, nil
+}
+
+func (c *Client) GetAPIMetrics() (APIResult, error) {
+	var result APIResult
+
+	body, errBody := c.fetchJSON(EndpointApiListener)
+
+	if errBody != nil {
+		return result, fmt.Errorf("error fetching response: %w", errBody)
+	}
+
+	errDecode := json.Unmarshal(body, &result)
+
+	if errDecode != nil {
+		return result, fmt.Errorf("error parsing response: %w", errDecode)
+	}
+
+	return result, nil
+}
+
+func (c *Client) GetCheckerComponentMetrics() (CheckerComponentResult, error) {
+	var result CheckerComponentResult
+
+	body, errBody := c.fetchJSON(EndpointCheckerComponent)
 
 	if errBody != nil {
 		return result, fmt.Errorf("error fetching response: %w", errBody)

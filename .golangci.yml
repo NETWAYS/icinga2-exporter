@@ -15,6 +15,7 @@ linters:
     - wsl_v5
     - gomodguard_v2
   disable:
+    - goconst
     - wsl
     - gomodguard
     - dupl
