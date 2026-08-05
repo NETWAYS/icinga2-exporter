@@ -23,8 +23,8 @@ func NewIcinga2OTLPMetricsCollector(client *icinga.Client, logger *slog.Logger) 
 		logger:       logger,
 		otlpmetricswriter_otlp_metrics_work_queue_items:     prometheus.NewDesc("icinga2_otlpmetricswriter_otlp_metrics_work_queue_items", "OTLPMetricsWriter work queue items", nil, nil),
 		otlpmetricswriter_otlp_metrics_work_queue_item_rate: prometheus.NewDesc("icinga2_otlpmetricswriter_otlp_metrics_work_queue_item_rate", "OTLPMetricsWriter work queue item rate", nil, nil),
-		otlpmetricswriter_otlp_metrics_data_buffer_items:    prometheus.NewDesc("otlpmetricswriter_otlp_metrics_data_buffer_items", "OTLPMetricsWriter data buffer items", nil, nil),
-		otlpmetricswriter_otlp_metrics_data_buffer_bytes:    prometheus.NewDesc("otlpmetricswriter_otlp_metrics_data_buffer_bytes", "OTLPMetricsWriter data buffer bytes", nil, nil),
+		otlpmetricswriter_otlp_metrics_data_buffer_items:    prometheus.NewDesc("icinga2_otlpmetricswriter_otlp_metrics_data_buffer_items", "OTLPMetricsWriter data buffer items", nil, nil),
+		otlpmetricswriter_otlp_metrics_data_buffer_bytes:    prometheus.NewDesc("icinga2_otlpmetricswriter_otlp_metrics_data_buffer_bytes", "OTLPMetricsWriter data buffer bytes", nil, nil),
 	}
 }
 
@@ -42,7 +42,7 @@ func (collector *Icinga2OTLPMetricsCollector) Collect(ch chan<- prometheus.Metri
 	perfdata, err := collector.icingaClient.GetPerfdataMetrics(icinga.EndpointOTLPMetricsWriter)
 
 	if err != nil {
-		collector.logger.Error("Could not retrieve OTLPMetrics metrics", "error", err.Error())
+		collector.logger.Error("Could not retrieve OTLPMetricsWriter metrics", "error", err.Error())
 		return
 	}
 
