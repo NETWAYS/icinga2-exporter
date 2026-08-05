@@ -53,6 +53,14 @@ type Client struct {
 	config Config
 }
 
+// IcingaClient is an interface that we use to simplify testing
+type IcingaClient interface {
+	GetPerfdataMetrics(endpoint string) ([]Perfdata, error)
+	GetCIBMetrics() (CIBResult, error)
+	GetApplicationMetrics() (ApplicationResult, error)
+}
+
+// NewClient returns a configured client
 func NewClient(c Config) (*Client, error) {
 	// Create TLS configuration for default RoundTripper
 	tlsConfig, err := newTLSConfig(&TLSConfig{

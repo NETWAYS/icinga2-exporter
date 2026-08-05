@@ -1,0 +1,25 @@
+{
+    "results": [
+        {
+            "name": "IcingaApplication",
+            "perfdata": [],
+            "status": {
+                "icingaapplication": {
+                    "app": {
+                        "enable_event_handlers": true,
+                        "enable_flapping": true,
+                        "enable_host_checks": true,
+                        "enable_notifications": true,
+                        "enable_perfdata": true,
+                        "enable_service_checks": true,
+                        "environment": "",
+                        "node_name": "unittest",
+                        "pid": 18374,
+                        "program_start": 1772542644.41882,
+                        "version": "r2.15.2-1"
+                    }
+                }
+            }
+        }
+    ]
+}

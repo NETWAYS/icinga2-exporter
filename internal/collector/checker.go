@@ -3,19 +3,19 @@ package collector
 import (
 	"log/slog"
 
-	"github.com/martialblog/icinga2-exporter/internal/icinga"
+	"github.com/NETWAYS/icinga2-exporter/internal/icinga"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 type Icinga2CheckerCollector struct {
-	icingaClient                     *icinga.Client
+	icingaClient                     icinga.IcingaClient
 	logger                           *slog.Logger
 	checkercomponent_checker_idle    *prometheus.Desc
 	checkercomponent_checker_pending *prometheus.Desc
 }
 
-func NewIcinga2CheckerCollector(client *icinga.Client, logger *slog.Logger) *Icinga2CheckerCollector {
+func NewIcinga2CheckerCollector(client icinga.IcingaClient, logger *slog.Logger) *Icinga2CheckerCollector {
 	return &Icinga2CheckerCollector{
 		icingaClient:                     client,
 		logger:                           logger,

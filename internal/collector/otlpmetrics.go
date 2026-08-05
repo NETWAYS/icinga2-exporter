@@ -3,13 +3,13 @@ package collector
 import (
 	"log/slog"
 
-	"github.com/martialblog/icinga2-exporter/internal/icinga"
+	"github.com/NETWAYS/icinga2-exporter/internal/icinga"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 type Icinga2OTLPMetricsCollector struct {
-	icingaClient                                        *icinga.Client
+	icingaClient                                        icinga.IcingaClient
 	logger                                              *slog.Logger
 	otlpmetricswriter_otlp_metrics_work_queue_items     *prometheus.Desc
 	otlpmetricswriter_otlp_metrics_work_queue_item_rate *prometheus.Desc
@@ -17,7 +17,7 @@ type Icinga2OTLPMetricsCollector struct {
 	otlpmetricswriter_otlp_metrics_data_buffer_bytes    *prometheus.Desc
 }
 
-func NewIcinga2OTLPMetricsCollector(client *icinga.Client, logger *slog.Logger) *Icinga2OTLPMetricsCollector {
+func NewIcinga2OTLPMetricsCollector(client icinga.IcingaClient, logger *slog.Logger) *Icinga2OTLPMetricsCollector {
 	return &Icinga2OTLPMetricsCollector{
 		icingaClient: client,
 		logger:       logger,
