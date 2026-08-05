@@ -104,7 +104,7 @@ func main() {
 	flag.Parse()
 
 	if cliVersion {
-		fmt.Printf("icinga-exporter version: %s\n", buildVersion())
+		fmt.Printf("icinga2-exporter version: %s\n", buildVersion())
 		os.Exit(0)
 	}
 

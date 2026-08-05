@@ -4,11 +4,19 @@ COMMIT := $(shell git rev-parse HEAD)
 VERSION?=latest
 DATE := $(shell date -I)
 
+CONTAINER_RUNTIME?=podman
+
 GOARCH?=amd64
 GOOS?=linux
 
 dist:
 	mkdir -p dist/
+build-image:
+	$(CONTAINER_RUNTIME) build --pull \
+        --build-arg EXPORTER_VERSION=$(VERSION) \
+        --build-arg EXPORTER_COMMIT=$(COMMIT) \
+        --build-arg EXPORTER_DATE=$(DATE) \
+        -t ghcr.io/netways/icinga2-exporter:latest .
 build: dist
 	GOARCH=$(GOARCH) GOOS=$(GOOS) CGO_ENABLED=0 go build -ldflags="-s -w -X main.version=$(VERSION) -X main.commit=$(COMMIT) -X main.date=$(DATE)" -o dist/
 lint:

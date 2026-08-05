@@ -13,7 +13,19 @@ Other Icinga and Prometheus Integrations we provide:
 * https://github.com/NETWAYS/alertmanager-icinga-bridge
 * https://github.com/NETWAYS/notify-alertmanager
 
-## Installation and Usage
+## Installation
+
+The `icinga2-exporter` is available as an executable in the GitHub Releases and a container image.
+
+### Container
+
+A container image is available at:
+
+```
+ghcr.io/netways/icinga2-exporter
+```
+
+## Usage
 
 The `icinga2-exporter` listens on HTTP port 9665 by default.
 See the `-help` output for more options.
