@@ -25,7 +25,6 @@ var (
 	// These get filled at build time with the proper values.
 	version = "development"
 	commit  = "HEAD"
-	date    = "latest"
 )
 
 func buildVersion() string {
@@ -33,10 +32,6 @@ func buildVersion() string {
 
 	if commit != "" {
 		result = fmt.Sprintf("%s\ncommit: %s", result, commit)
-	}
-
-	if date != "" {
-		result = fmt.Sprintf("%s\ndate: %s", result, date)
 	}
 
 	return result

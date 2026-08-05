@@ -4,13 +4,12 @@ FROM docker.io/golang:alpine AS builder
 
 ARG EXPORTER_VERSION=development
 ARG EXPORTER_COMMIT=HEAD
-ARG EXPORTER_DATE=latest
 
 WORKDIR /usr/local/src/exporter
 COPY --chown=nobody:nogroup . .
 
 RUN set -ex; \
-    go build -ldflags="-s -w -X main.version=${EXPORTER_VERSION} -X main.commit=${EXPORTER_COMMIT} -X main.date=${EXPORTER_DATE}" -o /go/bin/icinga2-exporter
+    go build -ldflags="-s -w -X main.version=${EXPORTER_VERSION} -X main.commit=${EXPORTER_COMMIT}" -o /go/bin/icinga2-exporter
 
 FROM docker.io/alpine:latest
 
