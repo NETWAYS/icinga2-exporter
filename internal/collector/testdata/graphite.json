@@ -1,0 +1,40 @@
+{
+    "results": [
+        {
+            "name": "GraphiteWriter",
+            "perfdata": [
+                {
+                    "counter": false,
+                    "crit": null,
+                    "label": "graphitewriter_graphite_work_queue_items",
+                    "max": null,
+                    "min": null,
+                    "type": "PerfdataValue",
+                    "unit": "",
+                    "value": 2,
+                    "warn": null
+                },
+                {
+                    "counter": false,
+                    "crit": null,
+                    "label": "graphitewriter_graphite_work_queue_item_rate",
+                    "max": null,
+                    "min": null,
+                    "type": "PerfdataValue",
+                    "unit": "",
+                    "value": 0.216,
+                    "warn": null
+                }
+            ],
+            "status": {
+                "graphitewriter": {
+                    "graphite": {
+                        "connected": false,
+                        "work_queue_item_rate": 0.216,
+                        "work_queue_items": 2
+                    }
+                }
+            }
+        }
+    ]
+}

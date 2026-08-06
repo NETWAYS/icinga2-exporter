@@ -11,10 +11,11 @@ import (
 )
 
 const (
-	icingaTestDataCIB1   = "testdata/cib1.json"
-	icingaTestDataAPP1   = "testdata/app1.json"
-	icingaTestDataAPI1   = "testdata/api1.json"
-	icingaTestDataCheck1 = "testdata/checker1.json"
+	icingaTestDataCIB1 = "testdata/cib1.json"
+	icingaTestDataAPP1 = "testdata/app1.json"
+	icingaTestDataAPI1 = "testdata/api1.json"
+	// icingaTestDataCheck1 = "testdata/checker1.json"
+	icingaTestDataPerf1 = "testdata/otlp.json"
 )
 
 func loadTestdata(filepath string) []byte {
@@ -142,37 +143,47 @@ func Test_GetApplicationMetrics(t *testing.T) {
 
 func Test_GetPerfdataMetrics(t *testing.T) {
 	testcases := map[string]struct {
-		expected []Perfdata
+		expected PerfdataResult
 		endpoint string
 		server   *httptest.Server
 	}{
-		"api": {
+		"otlp": {
 			server: httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
-				w.Write(loadTestdata(icingaTestDataAPI1))
+				w.Write(loadTestdata(icingaTestDataPerf1))
 			})),
-			endpoint: EndpointApiListener,
-			expected: []Perfdata{
-				{
-					Label: "api_num_conn_endpoints",
-					Value: 11,
-				},
-			},
-		},
-		"checker": {
-			server: httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
-				w.Write(loadTestdata(icingaTestDataCheck1))
-			})),
-			endpoint: EndpointCheckerComponent,
-			expected: []Perfdata{
-				{
-					Label: "checkercomponent_checker_idle",
-					Value: 15,
-				},
-				{
-					Label: "checkercomponent_checker_pending",
-					Value: 10,
+			endpoint: EndpointOTLPMetricsWriter,
+			expected: PerfdataResult{
+				Results: []struct {
+					Name     string                                   `json:"name"`
+					Perfdata []Perfdata                               `json:"perfdata,omitempty"`
+					Status   map[string]map[string]map[string]float64 `json:"status"`
+				}{
+					{
+						Name: "OTLPMetricsWriter",
+						Perfdata: []Perfdata{
+							{
+								IsCounter: false,
+								Label:     "otlpmetricswriter_otlp-elastic_work_queue_items",
+								Value:     0,
+							},
+							{
+								IsCounter: false,
+								Label:     "otlpmetricswriter_otlp-elastic_work_queue_item_rate",
+								Value:     0.5833333333333334,
+							},
+						},
+						Status: map[string]map[string]map[string]float64{
+							"otlpmetricswriter": {
+								"otlp-elastic": {
+									"data_buffer_items": 48095,
+								},
+								"otlp-metrics": {
+									"data_buffer_items": 153,
+								},
+							},
+						},
+					},
 				},
 			},
 		},

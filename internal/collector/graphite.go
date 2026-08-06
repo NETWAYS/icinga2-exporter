@@ -1,6 +1,7 @@
 package collector
 
 import (
+	"fmt"
 	"log/slog"
 
 	"github.com/NETWAYS/icinga2-exporter/internal/icinga"
@@ -9,50 +10,51 @@ import (
 )
 
 type Icinga2GraphiteCollector struct {
-	icingaClient                                 icinga.IcingaClient
-	logger                                       *slog.Logger
-	graphitewriter_graphite_data_queue_items     *prometheus.Desc
-	graphitewriter_graphite_work_queue_items     *prometheus.Desc
-	graphitewriter_graphite_work_queue_item_rate *prometheus.Desc
+	icingaClient icinga.IcingaClient
+	logger       *slog.Logger
 }
 
 func NewIcinga2GraphiteCollector(client icinga.IcingaClient, logger *slog.Logger) *Icinga2GraphiteCollector {
 	return &Icinga2GraphiteCollector{
-		icingaClient:                                 client,
-		logger:                                       logger,
-		graphitewriter_graphite_data_queue_items:     prometheus.NewDesc("icinga2_graphitewriter_graphite_data_queue_items", "GraphiteWriter data queue items", nil, nil),
-		graphitewriter_graphite_work_queue_items:     prometheus.NewDesc("icinga2_graphitewriter_graphite_work_queue_items", "GraphiteWriter work queue items", nil, nil),
-		graphitewriter_graphite_work_queue_item_rate: prometheus.NewDesc("icinga2_graphitewriter_graphite_work_queue_item_rate", "GraphiteWriter work queue item rate", nil, nil),
+		icingaClient: client,
+		logger:       logger,
 	}
 }
 
 func (collector *Icinga2GraphiteCollector) Describe(ch chan<- *prometheus.Desc) {
-	ch <- collector.graphitewriter_graphite_data_queue_items
-
-	ch <- collector.graphitewriter_graphite_work_queue_items
-
-	ch <- collector.graphitewriter_graphite_work_queue_item_rate
 }
 
 func (collector *Icinga2GraphiteCollector) Collect(ch chan<- prometheus.Metric) {
 	perfdata, err := collector.icingaClient.GetPerfdataMetrics(icinga.EndpointGraphiteWriter)
 
 	if err != nil {
-		collector.logger.Error("Could not retrieve Graphite metrics", "error", err.Error())
+		collector.logger.Error("Could not retrieve GraphiteWriter metrics", "error", err.Error())
 		return
 	}
 
-	for _, datapoint := range perfdata {
-		if datapoint.Label == "graphitewriter_graphite_data_queue_items" {
-			ch <- prometheus.MustNewConstMetric(collector.graphitewriter_graphite_data_queue_items, prometheus.GaugeValue, datapoint.Value)
-		}
+	for _, result := range perfdata.Results {
+		for component, writers := range result.Status {
+			for writer, metrics := range writers {
+				for metricName, value := range metrics {
+					if !isPerfdataMetric(metricName) {
+						continue
+					}
 
-		if datapoint.Label == "graphitewriter_graphite_work_queue_items" {
-			ch <- prometheus.MustNewConstMetric(collector.graphitewriter_graphite_work_queue_items, prometheus.GaugeValue, datapoint.Value)
-		}
+					safeMetricName := ensureValidMetricName(metricName)
 
-		if datapoint.Label == "graphitewriter_graphite_work_queue_item_rate" {
-			ch <- prometheus.MustNewConstMetric(collector.graphitewriter_graphite_work_queue_item_rate, prometheus.GaugeValue, datapoint.Value)
+					name := fmt.Sprintf("icinga2_%s_%s", component, safeMetricName)
+
+					description := prometheus.NewDesc(name, "GraphiteWriter "+name, []string{"writer"}, nil)
+					metric, err := prometheus.NewConstMetric(description, prometheus.GaugeValue, value, writer)
+
+					if err != nil {
+						collector.logger.Error("Error creating metric "+metricName, "error", err.Error())
+						continue
+					}
+
+					ch <- metric
+				}
+			}
 		}
 	}
 }

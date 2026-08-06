@@ -8,15 +8,17 @@ import (
 type MockIcingaClient struct {
 	perfdata    icinga.PerfdataResult
 	cib         icinga.CIBResult
+	api         icinga.APIResult
 	application icinga.ApplicationResult
+	checker     icinga.CheckerComponentResult
 }
 
 func (m *MockIcingaClient) SetPerfdataMetrics(perfdata icinga.PerfdataResult) {
 	m.perfdata = perfdata
 }
 
-func (m *MockIcingaClient) GetPerfdataMetrics(endpoint string) ([]icinga.Perfdata, error) {
-	return m.perfdata.Results[0].Perfdata, nil
+func (m *MockIcingaClient) GetPerfdataMetrics(endpoint string) (icinga.PerfdataResult, error) {
+	return m.perfdata, nil
 }
 
 func (m *MockIcingaClient) SetCIBMetrics(cib icinga.CIBResult) {
@@ -25,6 +27,22 @@ func (m *MockIcingaClient) SetCIBMetrics(cib icinga.CIBResult) {
 
 func (m *MockIcingaClient) GetCIBMetrics() (icinga.CIBResult, error) {
 	return m.cib, nil
+}
+
+func (m *MockIcingaClient) SetAPIMetrics(api icinga.APIResult) {
+	m.api = api
+}
+
+func (m *MockIcingaClient) GetAPIMetrics() (icinga.APIResult, error) {
+	return m.api, nil
+}
+
+func (m *MockIcingaClient) SetCheckerComponentMetrics(checker icinga.CheckerComponentResult) {
+	m.checker = checker
+}
+
+func (m *MockIcingaClient) GetCheckerComponentMetrics() (icinga.CheckerComponentResult, error) {
+	return m.checker, nil
 }
 
 func (m *MockIcingaClient) SetApplicationMetrics(application icinga.ApplicationResult) {
