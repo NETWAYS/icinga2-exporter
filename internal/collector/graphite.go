@@ -3,7 +3,6 @@ package collector
 import (
 	"fmt"
 	"log/slog"
-	"strings"
 
 	"github.com/NETWAYS/icinga2-exporter/internal/icinga"
 
@@ -38,11 +37,11 @@ func (collector *Icinga2GraphiteCollector) Collect(ch chan<- prometheus.Metric) 
 			for writer, metrics := range writers {
 				for metricName, value := range metrics {
 					// We only data about work/data items that are numeric values
-					if !strings.HasPrefix(metricName, "data") && !strings.HasPrefix(metricName, "work") {
+					if !isPerfdataMetric(metricName) {
 						continue
 					}
 
-					safeMetricName := strings.ReplaceAll(metricName, "-", "_")
+					safeMetricName := ensureValidMetricName(metricName)
 
 					name := fmt.Sprintf("icinga2_%s_%s", component, safeMetricName)
 
