@@ -36,7 +36,6 @@ func (collector *Icinga2GraphiteCollector) Collect(ch chan<- prometheus.Metric) 
 		for component, writers := range result.Status {
 			for writer, metrics := range writers {
 				for metricName, value := range metrics {
-					// We only data about work/data items that are numeric values
 					if !isPerfdataMetric(metricName) {
 						continue
 					}
@@ -49,7 +48,7 @@ func (collector *Icinga2GraphiteCollector) Collect(ch chan<- prometheus.Metric) 
 					metric, err := prometheus.NewConstMetric(description, prometheus.GaugeValue, value, writer)
 
 					if err != nil {
-						collector.logger.Error("Error creating metric %s: %v", metricName, err)
+						collector.logger.Error("Error creating metric "+metricName, "error", err.Error())
 						continue
 					}
 
