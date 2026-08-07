@@ -29,7 +29,7 @@ const (
 	EndpointElasticsearchWriter     = "/status/ElasticsearchWriter"
 	EndpointExternalCommandListener = "/status/ExternalCommandListener"
 	EndpointFileLogger              = "/status/FileLogger"
-	EndpointGelfWriter              = "/status/GelfWriter"
+	EndpointGELFWriter              = "/status/GelfWriter"
 	EndpointGraphiteWriter          = "/status/GraphiteWriter"
 	EndpointIdoMysqlConnection      = "/status/IdoMysqlConnection"
 	EndpointIdoPgsqlConnection      = "/status/IdoPgsqlConnection"
