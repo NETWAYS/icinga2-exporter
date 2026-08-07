@@ -64,7 +64,7 @@ func (collector *Icinga2APICollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (collector *Icinga2APICollector) Collect(ch chan<- prometheus.Metric) {
-	result, err := collector.icingaClient.GetAPIMetrics()
+	result, err := collector.icingaClient.GetAPIListenerMetrics()
 
 	if err != nil {
 		collector.logger.Error("Could not retrieve ApiListener metrics", "error", err.Error())

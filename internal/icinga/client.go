@@ -12,6 +12,15 @@ import (
 )
 
 const (
+	defaultDialTimeout         = 10 * time.Second
+	defaultKeepAlive           = 10 * time.Second
+	defaultTLSHandshake        = 10 * time.Second
+	defaultIdleConnTimeout     = 90 * time.Second
+	defaultMaxIdleConns        = 100
+	defaultMaxIdleConnsPerHost = 10
+)
+
+const (
 	EndpointApiListener             = "/status/ApiListener"
 	EndpointApplication             = "/status/IcingaApplication"
 	EndpointCIB                     = "/status/CIB"
@@ -54,11 +63,12 @@ type Client struct {
 }
 
 // IcingaClient is an interface that we use to simplify testing
+// Note, the methods use a context internally.
 type IcingaClient interface {
 	GetPerfdataMetrics(endpoint string) (PerfdataResult, error)
 	GetCIBMetrics() (CIBResult, error)
 	GetApplicationMetrics() (ApplicationResult, error)
-	GetAPIMetrics() (APIResult, error)
+	GetAPIListenerMetrics() (APIResult, error)
 	GetCheckerComponentMetrics() (CheckerComponentResult, error)
 }
 
@@ -79,14 +89,14 @@ func NewClient(c Config) (*Client, error) {
 	var rt http.RoundTripper = &http.Transport{
 		Proxy: http.ProxyFromEnvironment,
 		DialContext: (&net.Dialer{
-			Timeout:   10 * time.Second,
-			KeepAlive: 10 * time.Second,
+			Timeout:   defaultDialTimeout,
+			KeepAlive: defaultKeepAlive,
 		}).DialContext,
-		TLSHandshakeTimeout: 10 * time.Second,
+		TLSHandshakeTimeout: defaultTLSHandshake,
 		TLSClientConfig:     tlsConfig,
-		IdleConnTimeout:     90 * time.Second,
-		MaxIdleConns:        100,
-		MaxIdleConnsPerHost: 10,
+		IdleConnTimeout:     defaultIdleConnTimeout,
+		MaxIdleConns:        defaultMaxIdleConns,
+		MaxIdleConnsPerHost: defaultMaxIdleConnsPerHost,
 	}
 
 	// Using a BasicAuth for authentication
@@ -109,6 +119,7 @@ func NewClient(c Config) (*Client, error) {
 }
 
 // GetPerfdataMetrics returns the perfdata from a given status API endpoint
+// There is some duplication here, but that is fine for now
 func (c *Client) GetPerfdataMetrics(endpoint string) (PerfdataResult, error) {
 	var result PerfdataResult
 
@@ -131,6 +142,7 @@ func (c *Client) GetPerfdataMetrics(endpoint string) (PerfdataResult, error) {
 	return result, nil
 }
 
+// GetCIBMetrics returns the Common Information Base metrics
 func (c *Client) GetCIBMetrics() (CIBResult, error) {
 	var result CIBResult
 
@@ -149,6 +161,7 @@ func (c *Client) GetCIBMetrics() (CIBResult, error) {
 	return result, nil
 }
 
+// GetApplicationMetrics returns the base application metrics
 func (c *Client) GetApplicationMetrics() (ApplicationResult, error) {
 	var result ApplicationResult
 
@@ -167,7 +180,8 @@ func (c *Client) GetApplicationMetrics() (ApplicationResult, error) {
 	return result, nil
 }
 
-func (c *Client) GetAPIMetrics() (APIResult, error) {
+// GetAPIListenerMetrics returns the APIListener metrics
+func (c *Client) GetAPIListenerMetrics() (APIResult, error) {
 	var result APIResult
 
 	body, errBody := c.fetchJSON(EndpointApiListener)
@@ -185,6 +199,7 @@ func (c *Client) GetAPIMetrics() (APIResult, error) {
 	return result, nil
 }
 
+// GetCheckerComponentMetrics returns the CheckerComponent metrics
 func (c *Client) GetCheckerComponentMetrics() (CheckerComponentResult, error) {
 	var result CheckerComponentResult
 
@@ -203,6 +218,7 @@ func (c *Client) GetCheckerComponentMetrics() (CheckerComponentResult, error) {
 	return result, nil
 }
 
+// fetchJSON calls the given endpoint and returns the JSON result
 func (c *Client) fetchJSON(endpoint string) ([]byte, error) {
 	// Lookup data in the cache we go out and bother the Icinga API
 	if elem, ok := c.cache.Get(endpoint); ok {

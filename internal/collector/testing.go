@@ -29,11 +29,11 @@ func (m *MockIcingaClient) GetCIBMetrics() (icinga.CIBResult, error) {
 	return m.cib, nil
 }
 
-func (m *MockIcingaClient) SetAPIMetrics(api icinga.APIResult) {
+func (m *MockIcingaClient) SetAPIListenerMetrics(api icinga.APIResult) {
 	m.api = api
 }
 
-func (m *MockIcingaClient) GetAPIMetrics() (icinga.APIResult, error) {
+func (m *MockIcingaClient) GetAPIListenerMetrics() (icinga.APIResult, error) {
 	return m.api, nil
 }
 
