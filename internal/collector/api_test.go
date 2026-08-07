@@ -21,7 +21,7 @@ func TestIcinga2APICollector_Collect(t *testing.T) {
 	data, _ := os.ReadFile("testdata/api.json")
 	json.Unmarshal(data, &result)
 
-	client.SetAPIMetrics(result)
+	client.SetAPIListenerMetrics(result)
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	collector := NewIcinga2APICollector(client, logger)
