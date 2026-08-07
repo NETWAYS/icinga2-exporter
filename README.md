@@ -33,16 +33,20 @@ See the `-help` output for more options.
 ```
 -collector.apilistener
       Include APIListener data
--collector.cib
-      Include CIB data
 -collector.checker
       Include CheckerComponent data
+-collector.cib
+      Include CIB data
+-collector.gelf
+      Include GelfWriter data
 -collector.graphite
       Include GraphiteWriter data
 -collector.influx
       Include InfluxDBWriter  data
 -collector.influx2
       Include InfluxDB2Writer data
+-collector.opentsdb
+      Include OpenTSDBWriter data
 -collector.otlpmetrics
       Include OTLPMetricsWriter data
 -debug

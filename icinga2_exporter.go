@@ -70,6 +70,7 @@ func main() {
 		cliCollectorInflux      bool
 		cliCollectorInflux2     bool
 		cliCollectorGraphite    bool
+		cliCollectorOpenTSDB    bool
 		cliCollectorGELF        bool
 		cliCollectorOTLP        bool
 	)
@@ -92,6 +93,7 @@ func main() {
 	flag.BoolVar(&cliCollectorInflux, "collector.influx", false, "Include InfluxDBWriter  data")
 	flag.BoolVar(&cliCollectorInflux2, "collector.influx2", false, "Include InfluxDB2Writer data")
 	flag.BoolVar(&cliCollectorGraphite, "collector.graphite", false, "Include GraphiteWriter data")
+	flag.BoolVar(&cliCollectorOpenTSDB, "collector.opentsdb", false, "Include OpenTSDBWriter data")
 	flag.BoolVar(&cliCollectorGELF, "collector.gelf", false, "Include GelfWriter data")
 	flag.BoolVar(&cliCollectorOTLP, "collector.otlpmetrics", false, "Include OTLPMetricsWriter data")
 
@@ -178,6 +180,10 @@ func main() {
 
 	if cliCollectorGELF {
 		prometheus.MustRegister(collector.NewIcinga2GELFCollector(c, logger))
+	}
+
+	if cliCollectorOpenTSDB {
+		prometheus.MustRegister(collector.NewIcinga2OpenTSDBCollector(c, logger))
 	}
 
 	if cliCollectorOTLP {
