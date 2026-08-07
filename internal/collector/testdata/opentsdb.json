@@ -1,0 +1,40 @@
+{
+    "results": [
+    {
+      "name": "OpenTsdbWriter",
+      "perfdata": [
+        {
+          "counter": false,
+          "crit": null,
+          "label": "opentsdbwriter_opentsdb_work_queue_items",
+          "max": null,
+          "min": null,
+          "type": "PerfdataValue",
+          "unit": "",
+          "value": 4,
+          "warn": null
+        },
+        {
+          "counter": false,
+          "crit": null,
+          "label": "opentsdbwriter_opentsdb_work_queue_item_rate",
+          "max": null,
+          "min": null,
+          "type": "PerfdataValue",
+          "unit": "",
+          "value": 0,
+          "warn": null
+        }
+      ],
+      "status": {
+        "opentsdbwriter": {
+          "opentsdb": {
+            "connected": false,
+            "work_queue_item_rate": 0,
+            "work_queue_items": 4
+          }
+        }
+      }
+    }
+    ]
+}
