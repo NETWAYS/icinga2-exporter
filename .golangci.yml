@@ -22,6 +22,7 @@ linters:
     - godox
     - lll
     - exhaustruct
+    - exhaustruct_v5
     - tagliatelle
     - forbidigo
     - wsl
